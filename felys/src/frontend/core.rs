@@ -24,7 +24,7 @@ pub struct Lexer {
 
 
 pub fn eval(input: String) -> Node {
-    let mut lexer: Lexer = Lexer::new(input);
+    let mut lexer: Lexer = Lexer::scan(input);
     let mut entry: Node = lexer.parse();
     entry.eval()
 }

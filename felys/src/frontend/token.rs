@@ -1,8 +1,8 @@
 use super::core::Token;
-use super::core::TokenType as tkT;
+use super::core::TokenType as TT;
 
 impl Token {
-    pub fn new(kind: tkT, s:usize) -> Self {
+    pub fn new(kind: TT, s:usize) -> Self {
         Self {
             kind,
             value: String::new(),

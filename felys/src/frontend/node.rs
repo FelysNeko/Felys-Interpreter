@@ -1,11 +1,11 @@
 use super::core::Node;
 use super::core::Token;
-use super::core::TokenType as tkT;
+use super::core::TokenType as TT;
 
 impl Node {
     pub fn eval(&mut self) -> Node {
         Self {
-            kind: tkT::Identifier,
+            kind: TT::Identifier,
             value: String::from("None"),
             branch: Vec::new()
         }
