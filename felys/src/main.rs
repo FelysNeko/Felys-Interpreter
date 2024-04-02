@@ -1,3 +1,8 @@
+mod frontend;
+mod runtime;
+
+
 fn main() {
-    println!("Hello, world!");
+    let expr = String::from("x = 1 + 1");
+    println!("{}", expr);
 }
