@@ -1,5 +1,7 @@
 pub enum TokenType {
-    Identifier
+    Null,
+    Identifier,
+    Number
 }
 
 
