@@ -1,7 +1,13 @@
+#[derive(PartialEq)]
 pub enum TokenType {
     Null,
     Identifier,
-    Number
+    Integer,
+    String,
+    BinaryOperator,
+    UnaryOperator,
+    OpenParentheses,
+    CloseParentheses,
 }
 
 
@@ -20,8 +26,8 @@ pub struct Node {
 
 
 pub struct Lexer {
-    pub raw: String,
-    pub data: Vec<Token>
+    pub input: String,
+    pub tokens: Vec<Token>
 }
 
 

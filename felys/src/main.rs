@@ -4,10 +4,10 @@ use crate::frontend::core::Lexer;
 
 
 fn main() {
-    let expr: String = String::from("2x12s");
+    let expr: String = String::from("x-2*('123'+3)");
     let lexer: Lexer = Lexer::scan(expr);
     
-    for each in lexer.data.iter().rev() {
-        println!("{}", each.value);
+    for each in lexer.tokens.iter().rev() {
+        println!("{:?}\t{}", each.kind, each.value);
     }
 }
