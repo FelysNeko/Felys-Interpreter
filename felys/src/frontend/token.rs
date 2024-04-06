@@ -1,5 +1,5 @@
-use super::core::Token;
-use super::core::TokenType as TT;
+use super::Token;
+use super::TokenType as TT;
 
 impl Token {
     pub fn new(kind: TT, s:usize) -> Self {

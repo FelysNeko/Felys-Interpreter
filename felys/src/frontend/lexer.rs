@@ -1,25 +1,13 @@
 use std::process::exit;
-use colored::Colorize;
-use super::core::Lexer;
-use super::core::Token;
-use super::core::Node;
-use super::core::TokenType as TT;
+use super::Lexer;
+use super::Token;
+use super::Node;
+use super::TokenType as TT;
 
 
 impl Lexer {
-    fn bad_char(&self, i:usize) -> ! {
-        println!("");
-        println!("{}", self.input);
-        for _ in 0..i {
-            print!(" ");
-        }
-        println!("{}", "^".red().bold());
-        println!("");
-        exit(1);
-    }
-
     pub fn scan(input:String) -> Self {
-        let mut lxr = Self {
+        let mut lxr: Lexer = Self {
             input, tokens: vec![Token::new(TT::Null, 0)]
         };
 
@@ -103,7 +91,7 @@ impl Lexer {
                 new.push(ch);
                 lxr.tokens.push(new);
             } else {
-                lxr.bad_char(i);
+                exit(1);
             }
         }
 
@@ -121,10 +109,10 @@ impl Lexer {
     }
 
     fn parse_assignment(&mut self) -> Node {
-        let mut left = self.parse_compare();
+        let mut left: Node = self.parse_compare();
         while let Some(tk) = self.tokens.pop() {
             if tk.kind == TT::BinaryOperator && tk.value == "=" {
-                let mut new = Node::from(tk);
+                let mut new: Node = Node::from(tk);
                 new.push(left);
                 new.push(self.parse_assignment());
                 left = new;
@@ -137,13 +125,13 @@ impl Lexer {
     }
 
     fn parse_compare(&mut self) -> Node {
-        let mut left = self.parse_additive();
+        let mut left: Node = self.parse_additive();
         while let Some(tk) = self.tokens.pop() {
             if tk.kind == TT::BinaryOperator && (
                 tk.value == ">" || tk.value == "<" || tk.value == "==" ||
                 tk.value == ">=" || tk.value == "<=" || tk.value == "!="
             ) {
-                let mut new = Node::from(tk);
+                let mut new: Node = Node::from(tk);
                 new.push(left);
                 new.push(self.parse_additive());
                 left = new;
@@ -156,10 +144,10 @@ impl Lexer {
     }
 
     fn parse_additive(&mut self) -> Node {
-        let mut left = self.parse_multiply();
+        let mut left: Node = self.parse_multiply();
         while let Some(tk) = self.tokens.pop() {
             if tk.kind == TT::BinaryOperator && (tk.value == "+" || tk.value == "-") {
-                let mut new = Node::from(tk);
+                let mut new: Node = Node::from(tk);
                 new.push(left);
                 new.push(self.parse_multiply());
                 left = new;
@@ -172,10 +160,10 @@ impl Lexer {
     }
 
     fn parse_multiply(&mut self) -> Node {
-        let mut left = self.parse_unary();
+        let mut left: Node = self.parse_unary();
         while let Some(tk) = self.tokens.pop() {
             if tk.kind == TT::BinaryOperator && (tk.value == "*" || tk.value == "/") {
-                let mut new = Node::from(tk);
+                let mut new: Node = Node::from(tk);
                 new.push(left);
                 new.push(self.parse_unary());
                 left = new;
@@ -190,7 +178,7 @@ impl Lexer {
     fn parse_unary(&mut self) -> Node {
         while let Some(tk) = self.tokens.pop() {
             if tk.kind == TT::UnaryOperator {
-                let mut new = Node::from(tk);
+                let mut new: Node = Node::from(tk);
                 new.push(self.parse_unary());
                 return new;
             } else {
@@ -208,7 +196,7 @@ impl Lexer {
                 TT::Integer |
                 TT::String => Node::from(tk),
                 TT::OpenParentheses => {
-                    let expr = self.parse_expression();
+                    let expr: Node = self.parse_expression();
                     self.eat_close_parentheses();
                     expr
                 },

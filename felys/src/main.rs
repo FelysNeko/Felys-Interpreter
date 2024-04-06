@@ -1,12 +1,13 @@
 mod frontend;
 mod runtime;
-use frontend::core::Node;
-use crate::frontend::core::Lexer;
+use frontend::Node;
+use frontend::Lexer;
 
 
 fn main() {
-    let expr: String = String::from("z=-4-(1-(3)-2)");
+    let expr: String = String::from("z=1");
     let mut lexer: Lexer = Lexer::scan(expr);
-    let entry: Node = lexer.parse();
-    println!("{:#?}", entry);
+    let mut entry: Node = lexer.parse();
+    let result = entry.eval();
+    println!("{:#?}", result);
 }
