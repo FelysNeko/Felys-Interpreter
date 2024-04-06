@@ -1,13 +1,12 @@
 mod frontend;
 mod runtime;
+use frontend::core::Node;
 use crate::frontend::core::Lexer;
 
 
 fn main() {
-    let expr: String = String::from("x-2*('123'+3)");
-    let lexer: Lexer = Lexer::scan(expr);
-    
-    for each in lexer.tokens.iter().rev() {
-        println!("{:?}\t{}", each.kind, each.value);
-    }
+    let expr: String = String::from("z=-4-(1-(3)-2)");
+    let mut lexer: Lexer = Lexer::scan(expr);
+    let entry: Node = lexer.parse();
+    println!("{:#?}", entry);
 }

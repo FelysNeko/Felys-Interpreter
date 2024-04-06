@@ -113,6 +113,119 @@ impl Lexer {
     }
 
     pub fn parse(&mut self) -> Node {
-        Node::from(Token::new(TT::Identifier, 0))
+        self.parse_expression()
+    }
+
+    fn parse_expression(&mut self) -> Node {
+        self.parse_assignment()
+    }
+
+    fn parse_assignment(&mut self) -> Node {
+        let mut left = self.parse_compare();
+        while let Some(tk) = self.tokens.pop() {
+            if tk.kind == TT::BinaryOperator && tk.value == "=" {
+                let mut new = Node::from(tk);
+                new.push(left);
+                new.push(self.parse_assignment());
+                left = new;
+            } else {
+                self.tokens.push(tk);
+                break;
+            }
+        }
+        left
+    }
+
+    fn parse_compare(&mut self) -> Node {
+        let mut left = self.parse_additive();
+        while let Some(tk) = self.tokens.pop() {
+            if tk.kind == TT::BinaryOperator && (
+                tk.value == ">" || tk.value == "<" || tk.value == "==" ||
+                tk.value == ">=" || tk.value == "<=" || tk.value == "!="
+            ) {
+                let mut new = Node::from(tk);
+                new.push(left);
+                new.push(self.parse_additive());
+                left = new;
+            } else {
+                self.tokens.push(tk);
+                break;
+            }
+        }
+        left
+    }
+
+    fn parse_additive(&mut self) -> Node {
+        let mut left = self.parse_multiply();
+        while let Some(tk) = self.tokens.pop() {
+            if tk.kind == TT::BinaryOperator && (tk.value == "+" || tk.value == "-") {
+                let mut new = Node::from(tk);
+                new.push(left);
+                new.push(self.parse_multiply());
+                left = new;
+            } else {
+                self.tokens.push(tk);
+                break;
+            }
+        }
+        left
+    }
+
+    fn parse_multiply(&mut self) -> Node {
+        let mut left = self.parse_unary();
+        while let Some(tk) = self.tokens.pop() {
+            if tk.kind == TT::BinaryOperator && (tk.value == "*" || tk.value == "/") {
+                let mut new = Node::from(tk);
+                new.push(left);
+                new.push(self.parse_unary());
+                left = new;
+            } else {
+                self.tokens.push(tk);
+                break;
+            }
+        }
+        left
+    }
+
+    fn parse_unary(&mut self) -> Node {
+        while let Some(tk) = self.tokens.pop() {
+            if tk.kind == TT::UnaryOperator {
+                let mut new = Node::from(tk);
+                new.push(self.parse_unary());
+                return new;
+            } else {
+                self.tokens.push(tk);
+                break;
+            }
+        }
+        self.parse_primary()
+    }
+
+    fn parse_primary(&mut self) -> Node {
+        if let Some(tk) = self.tokens.pop() {
+            match tk.kind {
+                TT::Identifier |
+                TT::Integer |
+                TT::String => Node::from(tk),
+                TT::OpenParentheses => {
+                    let expr = self.parse_expression();
+                    self.eat_close_parentheses();
+                    expr
+                },
+                _ => exit(1)
+            }
+        } else {
+            exit(1)
+        }
+    }
+
+    fn eat_close_parentheses(&mut self) {
+        if let Some(cp) = self.tokens.pop() {
+            if cp.kind != TT::CloseParentheses {
+                exit(1)
+            }
+        } else {
+            exit(1)
+        }
     }
 }

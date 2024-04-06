@@ -1,4 +1,4 @@
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum TokenType {
     Null,
     Identifier,
@@ -18,6 +18,7 @@ pub struct Token {
 }
 
 
+#[derive(Debug)]
 pub struct Node {
     pub kind: TokenType,
     pub value: String,
@@ -28,11 +29,4 @@ pub struct Node {
 pub struct Lexer {
     pub input: String,
     pub tokens: Vec<Token>
-}
-
-
-pub fn eval(input: String) -> Node {
-    let mut lexer: Lexer = Lexer::scan(input);
-    let mut entry: Node = lexer.parse();
-    entry.eval()
 }
