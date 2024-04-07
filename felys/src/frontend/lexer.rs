@@ -61,6 +61,7 @@ impl Lexer {
                 ) || (
                     last.kind == TT::UnaryOperator && last.value == "!"
                 ) {
+                    last.kind = TT::BinaryOperator;
                     last.value.push(ch)
                 } else {
                     let mut new: Token = Token::new(TT::BinaryOperator, i);
@@ -77,15 +78,23 @@ impl Lexer {
                 };
                 new.push(ch);
                 self.tokens.push(new);
+            } else if ch == '&' || ch == '|' { 
+                if last.kind == TT::BinaryOperator && (last.value == "&" || last.value == "|") {
+                    last.push(ch)
+                } else {
+                    let mut new: Token = Token::new(TT::BinaryOperator, i);
+                    new.push(ch);
+                    self.tokens.push(new);
+                }
             } else if ch == '\'' || ch == '\"' {
                 let mut new: Token = Token::new(TT::Null, i);
                 new.push(ch);
                 self.tokens.push(new);
-            } else if ch == '!' {
+            } else if ch == '!' || ch == '~' {
                 let mut new: Token = Token::new(TT::UnaryOperator, i);
                 new.push(ch);
                 self.tokens.push(new);
-            } else if ch == '*' || ch == '/' || ch == '>' || ch == '<' {
+            } else if ch == '*' || ch == '/' || ch == '>' || ch == '<' || ch == '^' || ch == '%' {
                 let mut new: Token = Token::new(TT::BinaryOperator, i);
                 new.push(ch);
                 self.tokens.push(new);
@@ -114,12 +123,44 @@ impl Lexer {
     }
 
     fn parse_assignment(&mut self) -> Node {
-        let mut left: Node = self.parse_compare();
+        let mut left: Node = self.parse_logical();
         while let Some(tk) = self.tokens.pop() {
             if tk.kind == TT::BinaryOperator && tk.value == "=" {
                 let mut new: Node = Node::from(tk);
                 new.push(left);
                 new.push(self.parse_assignment());
+                left = new;
+            } else {
+                self.tokens.push(tk);
+                break;
+            }
+        }
+        left
+    }
+
+    fn parse_logical(&mut self) -> Node {
+        let mut left: Node = self.parse_bitwise();
+        while let Some(tk) = self.tokens.pop() {
+            if tk.kind == TT::BinaryOperator && (tk.value == "&&" || tk.value == "||") {
+                let mut new: Node = Node::from(tk);
+                new.push(left);
+                new.push(self.parse_bitwise());
+                left = new;
+            } else {
+                self.tokens.push(tk);
+                break;
+            }
+        }
+        left
+    }
+
+    fn parse_bitwise(&mut self) -> Node {
+        let mut left: Node = self.parse_compare();
+        while let Some(tk) = self.tokens.pop() {
+            if tk.kind == TT::BinaryOperator && (tk.value == "&" || tk.value == "|") {
+                let mut new: Node = Node::from(tk);
+                new.push(left);
+                new.push(self.parse_compare());
                 left = new;
             } else {
                 self.tokens.push(tk);

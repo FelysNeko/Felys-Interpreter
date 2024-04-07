@@ -5,6 +5,33 @@ use crate::frontend::TokenType as TT;
 use std::process::exit;
 
 
+macro_rules! make_bool {
+    ($b:tt) => {
+        if $b == true {
+            Value::new(RT::Bool, String::from("true"))
+        } else {
+            Value::new(RT::Bool, String::from("false"))
+        }
+    };
+}
+
+macro_rules! return_bool {
+    ($e:expr) => {
+        if $e {
+            make_bool!(true)
+        } else {
+            make_bool!(false)
+        }
+    };
+}
+
+macro_rules! return_value {
+    ($k:expr, $e:expr) => {
+        Value::new($k, $e.to_string())
+    };
+}
+
+
 impl Value {
     fn from(n:Node) -> Self {
         match n.kind {
@@ -59,7 +86,16 @@ impl Node {
             "-" => lval.sub(rval),
             "*" => lval.mul(rval),
             "/" => lval.div(rval),
-            "=" => rval,
+            "%" => lval.rem(rval),
+            "=" => lval.asg(rval),
+            ">" => lval.gt(rval),
+            "<" => lval.ls(rval),
+            ">=" => lval.ge(rval),
+            "<=" => lval.le(rval),
+            "==" => lval.eq(rval),
+            "!=" => lval.nq(rval),
+            "&&" => lval.and(rval),
+            "||" => lval.or(rval),
             _ => Value::null()
         }
     }
@@ -85,77 +121,108 @@ impl Node {
 
 
 impl Value {
-    fn integer_to_isize(&self) -> isize {
-        match self.value.parse::<isize>() {
-            Ok(num) => num,
-            Err(_) => exit(1)
+    fn _parse(&self) -> isize {
+        if self.kind == RT::Integer {
+            match self.value.parse::<isize>() {
+                Ok(num) => num,
+                Err(_) => exit(1)
+            }
+        } else if self.kind == RT::Bool {
+            if self.value.as_str() == "true" { 1 } else { 0 }
+        } else {
+            exit(1)
         }
     }
 
+    fn _bool(&self) -> bool {
+        match self.kind {
+            RT::Integer |
+            RT::Bool => self._parse() != 0,
+            RT::String => self.value.len() != 0,
+            RT::Null => false
+        }
+    }
+
+    fn asg(self, rval:Value) -> Self {
+        rval
+    }
+
     fn add(self, rval:Value) -> Self {
-        if self.kind==RT::Integer && rval.kind==RT::Integer {
-            let val: isize = self.integer_to_isize() + rval.integer_to_isize();
-            Value::new(RT::Integer, val.to_string())
-        } else if self.kind==RT::String && rval.kind==RT::String {
-            let val: String = self.value + &rval.value;
-            Value::new(RT::String, val)
+        if self.kind==RT::String && rval.kind==RT::String {
+            return_value!(RT::String, self.value + &rval.value)
         } else {
-            Value::null()
+            return_value!(RT::Integer, self._parse() + rval._parse())
         }
     }
 
     fn sub(self, rval:Value) -> Self {
-        if self.kind==RT::Integer && rval.kind==RT::Integer {
-            let val: isize = self.integer_to_isize() - rval.integer_to_isize();
-            Value::new(RT::Integer, val.to_string())
-        } else {
-            Value::null()
-        }
+        return_value!(RT::Integer, self._parse() - rval._parse())
     }
 
     fn mul(self, rval:Value) -> Self {
-        if self.kind==RT::Integer && rval.kind==RT::Integer {
-            let val: isize = self.integer_to_isize() * rval.integer_to_isize();
-            Value::new(RT::Integer, val.to_string())
-        } else {
-            Value::null()
-        }
+        return_value!(RT::Integer, self._parse() * rval._parse())
     }
 
     fn div(self, rval:Value) -> Self {
-        if self.kind==RT::Integer && rval.kind==RT::Integer {
-            let val: isize = self.integer_to_isize() / rval.integer_to_isize();
-            Value::new(RT::Integer, val.to_string())
+        return_value!(RT::Integer, self._parse() / rval._parse())
+    }
+
+    fn rem(self, rval:Value) -> Self {
+        return_value!(RT::Integer, self._parse() % rval._parse())
+    }
+
+    fn gt(self, rval:Value) -> Self {
+        return_bool!(self.value > rval.value)
+    }
+
+    fn ge(self, rval:Value) -> Self {
+        return_bool!(self.value >= rval.value)
+    }
+
+    fn ls(self, rval:Value) -> Self {
+        return_bool!(self.value < rval.value)
+    }
+
+    fn le(self, rval:Value) -> Self {
+        return_bool!(self.value <= rval.value)
+    }
+
+    fn eq(self, rval:Value) -> Self {
+        return_bool!(self.value == rval.value)
+    }
+
+    fn nq(self, rval:Value) -> Self {
+        return_bool!(self.value != rval.value)
+    }
+
+    fn and(self, rval:Value) -> Self {
+        if self._bool() == false || rval._bool() == false {
+            make_bool!(false)
         } else {
-            Value::null()
+            rval
         }
+    }
+
+    fn or(self, rval:Value) -> Self {
+        if self._bool() == true {
+            return self;
+        }
+        if rval._bool() == true {
+            return rval;
+        }
+        make_bool!(false)
     }
 
     fn pos(self) -> Self {
-        if self.kind == RT::Integer {
-            self
-        } else {
-            Value::null()
-        }
+        return_value!(RT::Integer, self._parse())
     }
 
-    fn neg(mut self) -> Self {
-        if self.kind == RT::Integer {
-            self.value.insert(0, '-');
-            Value::new(RT::Integer, self.value)
-        } else {
-            Value::null()
-        }
+    fn neg(self) -> Self {
+        return_value!(RT::Integer, -self._parse())
     }
 
     fn not(self) -> Self {
-        if self.kind == RT::Integer {
-            match self.integer_to_isize() {
-                0 => Value::new(RT::Bool, "true".to_string()),
-                _ => Value::new(RT::Bool, "false".to_string())
-            }
-        } else {
-            Value::null()
-        }
+        return_bool!(self._parse() == 0)
     }
 }
+
