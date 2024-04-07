@@ -2,8 +2,14 @@ mod environ;
 mod eval;
 
 use std::collections::HashMap;
-use crate::frontend::Node;
+use crate::frontend::TokenType as TT;
+
+#[derive(Debug)]
+pub struct Value {
+    pub kind: TT,
+    pub value: String
+}
 
 struct Scope {
-    var: HashMap<String, Node>
+    map: HashMap<String, Value>
 }

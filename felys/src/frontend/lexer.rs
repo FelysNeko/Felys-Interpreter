@@ -6,13 +6,20 @@ use super::TokenType as TT;
 
 
 impl Lexer {
-    pub fn scan(input:String) -> Self {
+    pub fn parse(input:String) -> Node {
         let mut lxr: Lexer = Self {
             input, tokens: vec![Token::new(TT::Null, 0)]
         };
+        lxr._scan();
+        lxr._parse()
+    }
 
-        for (i, ch) in lxr.input.chars().enumerate() {
-            let last: &mut Token = lxr.tokens.last_mut().expect("silencer");  
+    fn _scan(&mut self) {
+        for (i, ch) in self.input.chars().enumerate() {
+            let last: &mut Token = match self.tokens.last_mut() {
+                Some(tk) => tk,
+                None => exit(1)
+            };  
 
             if last.kind == TT::Null && last.value.len() > 0 {
                 if last.value.starts_with(ch) {
@@ -34,7 +41,7 @@ impl Lexer {
                     _ => {
                         let mut new: Token = Token::new(TT::Identifier, i);
                         new.push(ch);
-                        lxr.tokens.push(new);
+                        self.tokens.push(new);
                     }
                 }
             } else if ch.is_ascii_digit() {
@@ -44,7 +51,7 @@ impl Lexer {
                     _ => {
                         let mut new: Token = Token::new(TT::Integer, i);
                         new.push(ch);
-                        lxr.tokens.push(new);
+                        self.tokens.push(new);
                     }
                 }
             } else if ch == '=' {
@@ -58,7 +65,7 @@ impl Lexer {
                 } else {
                     let mut new: Token = Token::new(TT::BinaryOperator, i);
                     new.push(ch);
-                    lxr.tokens.push(new);
+                    self.tokens.push(new);
                 }
             } else if ch == '+' || ch == '-' {
                 let mut new: Token = match last.kind {
@@ -69,38 +76,36 @@ impl Lexer {
                     _ => Token::new(TT::BinaryOperator, i)
                 };
                 new.push(ch);
-                lxr.tokens.push(new);
+                self.tokens.push(new);
             } else if ch == '\'' || ch == '\"' {
                 let mut new: Token = Token::new(TT::Null, i);
                 new.push(ch);
-                lxr.tokens.push(new);
+                self.tokens.push(new);
             } else if ch == '!' {
                 let mut new: Token = Token::new(TT::UnaryOperator, i);
                 new.push(ch);
-                lxr.tokens.push(new);
+                self.tokens.push(new);
             } else if ch == '*' || ch == '/' || ch == '>' || ch == '<' {
                 let mut new: Token = Token::new(TT::BinaryOperator, i);
                 new.push(ch);
-                lxr.tokens.push(new);
+                self.tokens.push(new);
             } else if ch == '(' {
                 let mut new: Token = Token::new(TT::OpenParentheses, i);
                 new.push(ch);
-                lxr.tokens.push(new);
+                self.tokens.push(new);
             } else if ch == ')' {
                 let mut new: Token = Token::new(TT::CloseParentheses, i);
                 new.push(ch);
-                lxr.tokens.push(new);
+                self.tokens.push(new);
             } else {
                 exit(1);
             }
         }
-
-        lxr.tokens.reverse();
-        lxr.tokens.pop();
-        lxr
+        self.tokens.reverse();
+        self.tokens.pop();
     }
 
-    pub fn parse(&mut self) -> Node {
+    fn _parse(&mut self) -> Node {
         self.parse_expression()
     }
 
