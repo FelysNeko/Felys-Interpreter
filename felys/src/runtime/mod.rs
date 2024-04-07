@@ -1,12 +1,18 @@
 mod environ;
 mod eval;
-
 use std::collections::HashMap;
-use crate::frontend::TokenType as TT;
+
+#[derive(PartialEq, Debug)]
+pub enum RuntimeType {
+    Integer,
+    String,
+    Bool,
+    Null
+}
 
 #[derive(Debug)]
 pub struct Value {
-    pub kind: TT,
+    pub kind: RuntimeType,
     pub value: String
 }
 

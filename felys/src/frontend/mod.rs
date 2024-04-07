@@ -2,7 +2,7 @@ mod lexer;
 mod token;
 mod node;
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug)]
 pub enum TokenType {
     Null,
     Identifier,
@@ -22,7 +22,7 @@ pub struct Token {
 }
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Node {
     pub kind: TokenType,
     pub value: String,

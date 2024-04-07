@@ -6,7 +6,7 @@ use runtime::Value;
 
 
 fn main() {
-    let expr: String = String::from("z=1");
+    let expr: String = String::from("!(12-12)");
     let entry: Node = Lexer::parse(expr);
     let result: Value = entry.eval();
     println!("{:#?}", result);
