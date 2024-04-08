@@ -1,5 +1,9 @@
 use colored::Colorize;
-use crate::frontend::{Lexer, Token};
+use crate::{
+    frontend::{Lexer, Node, Token},
+    runtime::Value 
+};
+
 
 pub enum Handler<T, M> {
     Good(T),
@@ -22,8 +26,36 @@ macro_rules! return_if_err {
 impl Msg {
     pub fn unknown() -> String {
         format!(
-            "{} but message not implented",
+            "{}: but message not implented",
             "Error".red()
+        )
+    }
+
+    pub fn variable_not_defined(input:String) -> String {
+        format!(
+            "{}: the variable {} is not defined",
+            "Error".red(), input.red()
+        )
+    }
+
+    pub fn binary_operation_not_implented(n:&Node) -> String {
+        format!(
+            "{}: have not implement {} binary operation",
+            "Error".red(), n.value.red()
+        )
+    }
+
+    pub fn unary_operation_not_implented(n:&Node) -> String {
+        format!(
+            "{}: have not implement {} unary operation",
+            "Error".red(), n.value.red()
+        )
+    }
+
+    pub fn cannot_parse_to_isize(val:&Value) -> String {
+        format!(
+            "{}: cannot parse {} to isize",
+            "Error".red(), val.value.red()
         )
     }
 

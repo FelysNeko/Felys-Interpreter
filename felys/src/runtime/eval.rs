@@ -1,9 +1,12 @@
 use super::Value;
 use super::RuntimeType as RT;
 use super::Scope;
+use crate::error::Handler;
+use crate::error::Handler::{Good, Bad};
+use crate::error::Msg;
 use crate::frontend::Node;
 use crate::frontend::TokenType as TT;
-use std::process::exit;
+use crate::return_if_err;
 
 
 macro_rules! make_bool {
@@ -19,16 +22,16 @@ macro_rules! make_bool {
 macro_rules! return_bool {
     ($e:expr) => {
         if $e {
-            make_bool!(true)
+            Good(make_bool!(true))
         } else {
-            make_bool!(false)
+            Good(make_bool!(false))
         }
     };
 }
 
 macro_rules! return_value {
     ($k:expr, $e:expr) => {
-        Value::new($k, $e.to_string())
+        Good(Value::new($k, $e.to_string()))
     };
 }
 
@@ -60,29 +63,29 @@ impl Value {
 
 
 impl Node {
-    pub fn eval(self, env:&mut Scope) -> Value {
+    pub fn eval(self, env:&mut Scope) -> Handler<Value, String> {
         match self.kind {
             TT::BinaryOperator => self.eval_binary_operation(env),
             TT::UnaryOperator => self.eval_unary_operation(env),
             TT::Identifier => env.get(self.value),
             TT::Integer |
-            TT::String => Value::from(self),
-            _ => Value::null()
+            TT::String => Good(Value::from(self)),
+            _ => Bad(Msg::unknown())
         }
     }
 
-    fn eval_binary_operation(mut self, env:&mut Scope) -> Value {
+    fn eval_binary_operation(mut self, env:&mut Scope) -> Handler<Value, String> {
         let rval: Value = match self.branch.pop() {
-            Some(v) => v.eval(env),
+            Some(v) => return_if_err!(v.eval(env)),
             None => Value::null()
         };
 
         let lval: Value = match self.branch.pop() {
             Some(v) => if self.value.as_str() == "=" {
                 env.assign(v.value, rval.clone());
-                return rval;
+                return Good(rval);
             } else {
-                v.eval(env)
+                return_if_err!(v.eval(env))
             },
             None => Value::null()
         };
@@ -101,13 +104,13 @@ impl Node {
             "!=" => lval.nq(rval),
             "&&" => lval.and(rval),
             "||" => lval.or(rval),
-            _ => Value::null()
+            _ => Bad(Msg::binary_operation_not_implented(&self))
         }
     }
 
-    fn eval_unary_operation(mut self, env:&mut Scope) -> Value {
+    fn eval_unary_operation(mut self, env:&mut Scope) -> Handler<Value, String> {
         let val: Value = match self.branch.pop() {
-            Some(v) => v.eval(env),
+            Some(v) => return_if_err!(v.eval(env)),
             None => Value::null()
         };
     
@@ -115,111 +118,150 @@ impl Node {
             "+" => val.pos(),
             "-" => val.neg(),
             "!" => val.not(),
-            _ => Value::null()
+            _ => Bad(Msg::unary_operation_not_implented(&self))
         }
     }
 }
 
 
 impl Value {
-    fn _parse(&self) -> isize {
+    fn _parse(&self) -> Handler<isize, String> {
         if self.kind == RT::Integer {
             match self.value.parse::<isize>() {
-                Ok(num) => num,
-                Err(_) => exit(1)
+                Ok(num) => Good(num),
+                Err(_) => Bad(Msg::cannot_parse_to_isize(self))
             }
         } else if self.kind == RT::Bool {
-            if self.value.as_str() == "true" { 1 } else { 0 }
+            if self.value.as_str() == "true" {
+                Good(1)
+            } else {
+                Good(0)
+            }
         } else {
-            exit(1)
+            Bad(Msg::cannot_parse_to_isize(self))
         }
     }
 
-    fn _bool(&self) -> bool {
+    fn _bool(&self) -> Handler<bool, String> {
         match self.kind {
             RT::Integer |
-            RT::Bool => self._parse() != 0,
-            RT::String => self.value.len() != 0,
-            RT::Null => false
+            RT::Bool => Good(return_if_err!(self._parse()) != 0),
+            RT::String => Good(self.value.len() != 0),
+            RT::Null => Good(false)
         }
     }
 
-    fn add(self, rval:Value) -> Self {
+    fn add(self, rval:Value) -> Handler<Self, String> {
         if self.kind==RT::String && rval.kind==RT::String {
             return_value!(RT::String, self.value + &rval.value)
         } else {
-            return_value!(RT::Integer, self._parse() + rval._parse())
+            return_value!(
+                RT::Integer, 
+                return_if_err!(self._parse()) + return_if_err!(rval._parse())
+            )
         }
     }
 
-    fn sub(self, rval:Value) -> Self {
-        return_value!(RT::Integer, self._parse() - rval._parse())
+    fn sub(self, rval:Value) -> Handler<Self, String> {
+        return_value!(
+            RT::Integer,
+            return_if_err!(self._parse()) - return_if_err!(rval._parse())
+        )
     }
 
-    fn mul(self, rval:Value) -> Self {
-        return_value!(RT::Integer, self._parse() * rval._parse())
+    fn mul(self, rval:Value) -> Handler<Self, String> {
+        return_value!(
+            RT::Integer,
+            return_if_err!(self._parse()) * return_if_err!(rval._parse())
+        )
     }
 
-    fn div(self, rval:Value) -> Self {
-        return_value!(RT::Integer, self._parse() / rval._parse())
+    fn div(self, rval:Value) -> Handler<Self, String> {
+        return_value!(
+            RT::Integer,
+            return_if_err!(self._parse()) / return_if_err!(rval._parse())
+        )
     }
 
-    fn rem(self, rval:Value) -> Self {
-        return_value!(RT::Integer, self._parse() % rval._parse())
+    fn rem(self, rval:Value) -> Handler<Self, String> {
+        return_value!(
+            RT::Integer,
+            return_if_err!(self._parse()) % return_if_err!(rval._parse())
+        )
     }
 
-    fn gt(self, rval:Value) -> Self {
-        return_bool!(self._parse() > rval._parse())
+    fn gt(self, rval:Value) -> Handler<Self, String> {
+        return_bool!(
+            return_if_err!(self._parse()) > return_if_err!(rval._parse())
+        )
     }
 
-    fn ge(self, rval:Value) -> Self {
-        return_bool!(self._parse() >= rval._parse())
+    fn ge(self, rval:Value) -> Handler<Self, String> {
+        return_bool!(
+            return_if_err!(self._parse()) >= return_if_err!(rval._parse())
+        )
     }
 
-    fn ls(self, rval:Value) -> Self {
-        return_bool!(self._parse() < rval._parse())
+    fn ls(self, rval:Value) -> Handler<Self, String> {
+        return_bool!(
+            return_if_err!(self._parse()) < return_if_err!(rval._parse())
+        )
     }
 
-    fn le(self, rval:Value) -> Self {
-        return_bool!(self._parse() <= rval._parse())
+    fn le(self, rval:Value) -> Handler<Self, String> {
+        return_bool!(
+            return_if_err!(self._parse()) <= return_if_err!(rval._parse())
+        )
     }
 
-    fn eq(self, rval:Value) -> Self {
-        return_bool!(self.value == rval.value)
+    fn eq(self, rval:Value) -> Handler<Self, String> {
+        return_bool!(
+            return_if_err!(self._parse()) == return_if_err!(rval._parse())
+        )
     }
 
-    fn nq(self, rval:Value) -> Self {
-        return_bool!(self.value != rval.value)
+    fn nq(self, rval:Value) -> Handler<Self, String> {
+        return_bool!(
+            return_if_err!(self._parse()) != return_if_err!(rval._parse())
+        )
     }
 
-    fn and(self, rval:Value) -> Self {
-        if self._bool() == false || rval._bool() == false {
-            make_bool!(false)
+    fn and(self, rval:Value) -> Handler<Self, String> {
+        if return_if_err!(self._bool()) == false || return_if_err!(rval._bool()) == false {
+            Good(make_bool!(false))
         } else {
-            rval
+            Good(rval)
         }
     }
 
-    fn or(self, rval:Value) -> Self {
-        if self._bool() == true {
-            return self;
+    fn or(self, rval:Value) -> Handler<Self, String> {
+        if return_if_err!(self._bool()) == true {
+            return Good(self);
         }
-        if rval._bool() == true {
-            return rval;
+        if return_if_err!(rval._bool()) == true {
+            return Good(rval);
         }
-        make_bool!(false)
+        Good(make_bool!(false))
     }
 
-    fn pos(self) -> Self {
-        return_value!(RT::Integer, self._parse())
+    fn pos(self) -> Handler<Self, String> {
+        return_value!(
+            RT::Integer,
+            return_if_err!(self._parse())
+        )
     }
 
-    fn neg(self) -> Self {
-        return_value!(RT::Integer, -self._parse())
+    fn neg(self) -> Handler<Self, String> {
+        return_value!(
+            RT::Integer,
+            -return_if_err!(self._parse())
+        )
     }
 
-    fn not(self) -> Self {
-        return_bool!(self._parse() == 0)
+    fn not(self) -> Handler<Self, String> {
+        return_bool!(
+            return_if_err!(self._parse()) == 0
+        )
     }
 }
 

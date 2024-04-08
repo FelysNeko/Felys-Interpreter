@@ -26,7 +26,6 @@ pub struct Token {
 pub struct Node {
     pub kind: TokenType,
     pub value: String,
-    pub loc: (usize, usize),
     pub branch: Vec<Node>
 }
 

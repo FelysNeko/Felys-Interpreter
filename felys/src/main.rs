@@ -28,7 +28,15 @@ fn main() {
                 continue;
             }
         };
-        let result: Value = entry.eval(&mut env);
+
+        let result: Value = match entry.eval(&mut env) {
+            Good(n) => n,
+            Bad(b) => {
+                println!("{}", b);
+                continue;
+            }
+        };
+        
         println!("{}", result.value);
     }
 }

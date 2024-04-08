@@ -6,7 +6,6 @@ impl Node {
         Self {
             kind: tk.kind,
             value: tk.value,
-            loc: (tk.loc.0, tk.loc.1),
             branch: Vec::new()
         }
     }

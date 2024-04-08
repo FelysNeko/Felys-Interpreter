@@ -1,7 +1,11 @@
+use crate::error::{Handler, Msg};
+use crate::error::Handler::{Good, Bad};
+
 use super::Scope;
 use super::Value;
 use super::RuntimeType as RT;
 use std::collections::HashMap;
+
 
 impl Scope {
     pub fn new() -> Self {
@@ -21,11 +25,11 @@ impl Scope {
         env
     }
 
-    pub fn get(&self, name:String) -> Value {
+    pub fn get(&self, name:String) -> Handler<Value, String> {
         if let Some(val) = self.map.get(&name) {
-            val.clone()
+            Good(val.clone())
         } else {
-            Value::null()
+            Bad(Msg::variable_not_defined(name))
         }
     }
 
