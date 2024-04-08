@@ -1,5 +1,6 @@
 use super::Value;
 use super::RuntimeType as RT;
+use super::Scope;
 use crate::frontend::Node;
 use crate::frontend::TokenType as TT;
 use std::process::exit;
@@ -41,14 +42,14 @@ impl Value {
         }
     }
 
-    fn null() -> Self {
+    pub fn null() -> Self {
         Self {
             kind: RT::Null,
             value: String::new()
         }
     }
 
-    fn new(kind:RT, value:String) -> Self {
+    pub fn new(kind:RT, value:String) -> Self {
         if kind==RT::Integer || kind==RT::String || kind==RT::Bool {
             Self { kind, value }
         } else {
@@ -59,25 +60,30 @@ impl Value {
 
 
 impl Node {
-    pub fn eval(self) -> Value {
+    pub fn eval(self, env:&mut Scope) -> Value {
         match self.kind {
-            TT::BinaryOperator => self.eval_binary_operation(),
-            TT::UnaryOperator => self.eval_unary_operation(),
-            TT::Identifier => self.eval_identifier(),
+            TT::BinaryOperator => self.eval_binary_operation(env),
+            TT::UnaryOperator => self.eval_unary_operation(env),
+            TT::Identifier => env.get(self.value),
             TT::Integer |
             TT::String => Value::from(self),
             _ => Value::null()
         }
     }
 
-    fn eval_binary_operation(mut self) -> Value {
+    fn eval_binary_operation(mut self, env:&mut Scope) -> Value {
         let rval: Value = match self.branch.pop() {
-            Some(v) => v.eval(),
+            Some(v) => v.eval(env),
             None => Value::null()
         };
-        
+
         let lval: Value = match self.branch.pop() {
-            Some(v) => v.eval(),
+            Some(v) => if self.value.as_str() == "=" {
+                env.assign(v.value, rval.clone());
+                return rval;
+            } else {
+                v.eval(env)
+            },
             None => Value::null()
         };
 
@@ -87,7 +93,6 @@ impl Node {
             "*" => lval.mul(rval),
             "/" => lval.div(rval),
             "%" => lval.rem(rval),
-            "=" => lval.asg(rval),
             ">" => lval.gt(rval),
             "<" => lval.ls(rval),
             ">=" => lval.ge(rval),
@@ -100,9 +105,9 @@ impl Node {
         }
     }
 
-    fn eval_unary_operation(mut self) -> Value {
+    fn eval_unary_operation(mut self, env:&mut Scope) -> Value {
         let val: Value = match self.branch.pop() {
-            Some(v) => v.eval(),
+            Some(v) => v.eval(env),
             None => Value::null()
         };
     
@@ -112,10 +117,6 @@ impl Node {
             "!" => val.not(),
             _ => Value::null()
         }
-    }
-
-    fn eval_identifier(self) -> Value {
-        Value::null()
     }
 }
 
@@ -143,10 +144,6 @@ impl Value {
         }
     }
 
-    fn asg(self, rval:Value) -> Self {
-        rval
-    }
-
     fn add(self, rval:Value) -> Self {
         if self.kind==RT::String && rval.kind==RT::String {
             return_value!(RT::String, self.value + &rval.value)
@@ -172,19 +169,19 @@ impl Value {
     }
 
     fn gt(self, rval:Value) -> Self {
-        return_bool!(self.value > rval.value)
+        return_bool!(self._parse() > rval._parse())
     }
 
     fn ge(self, rval:Value) -> Self {
-        return_bool!(self.value >= rval.value)
+        return_bool!(self._parse() >= rval._parse())
     }
 
     fn ls(self, rval:Value) -> Self {
-        return_bool!(self.value < rval.value)
+        return_bool!(self._parse() < rval._parse())
     }
 
     fn le(self, rval:Value) -> Self {
-        return_bool!(self.value <= rval.value)
+        return_bool!(self._parse() <= rval._parse())
     }
 
     fn eq(self, rval:Value) -> Self {
