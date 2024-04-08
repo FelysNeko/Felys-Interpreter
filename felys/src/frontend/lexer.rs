@@ -2,18 +2,14 @@ use super::Lexer;
 use super::Token;
 use super::Node;
 use super::TokenType as TT;
-use crate::error::{
-    ErrorStack as ES,
-    Error as E,
-    Handler,
-};
+use crate::error::{Error, Handler};
 use crate::error::Handler::{Good, Bad};
 
 impl Lexer {
-    pub fn parse(input:String) -> Option<Node> {
+    pub fn parse(input:String) -> Handler<Node, String> {
         let tokens = match scan(&input) {
             Good(tks) => tks,
-            Bad(_) => { return None; }
+            Bad(b) => { return Bad(b); }
         };
 
         let mut lxr: Lexer = Self {
@@ -23,32 +19,26 @@ impl Lexer {
     }
 
 
-    fn _parse(&mut self) -> Option<Node> {
-        match self.parse_expression() {
-            Some(n) => Some(n),
-            None => { return None; }
-        }
+    fn _parse(&mut self) -> Handler<Node, String> {
+        self.parse_expression()
     }
 
-    fn parse_expression(&mut self) -> Option<Node> {
-        match self.parse_assignment() {
-            Some(n) => Some(n),
-            None => { return None; }
-        }
+    fn parse_expression(&mut self) -> Handler<Node, String> {
+        self.parse_assignment()
     }
 
-    fn parse_assignment(&mut self) -> Option<Node> {
+    fn parse_assignment(&mut self) -> Handler<Node, String> {
         let mut left: Node = match self.parse_logical() {
-            Some(n) => n,
-            None => { return None; }
+            Good(n) => n,
+            Bad(b) => { return Bad(b); }
         };
 
         while let Some(tk) = self.tokens.pop() {
             if tk.kind == TT::BinaryOperator && tk.value == "=" {
                 let mut new: Node = Node::from(tk);
                 let right: Node = match self.parse_assignment() {
-                    Some(n) => n,
-                    None => { return None; }
+                    Good(n) => n,
+                    Bad(b) => { return Bad(b); }
                 };
                 new.push(left);
                 new.push(right);
@@ -58,21 +48,21 @@ impl Lexer {
                 break;
             }
         }
-        Some(left)
+        Good(left)
     }
 
-    fn parse_logical(&mut self) -> Option<Node> {
+    fn parse_logical(&mut self) -> Handler<Node, String> {
         let mut left: Node = match self.parse_bitwise() {
-            Some(n) => n,
-            None => { return None; }
+            Good(n) => n,
+            Bad(b) => { return Bad(b); }
         };
 
         while let Some(tk) = self.tokens.pop() {
             if tk.kind == TT::BinaryOperator && (tk.value == "&&" || tk.value == "||") {
                 let mut new: Node = Node::from(tk);
                 let right: Node = match self.parse_bitwise() {
-                    Some(n) => n,
-                    None => { return None; }
+                    Good(n) => n,
+                    Bad(b) => { return Bad(b); }
                 };
                 new.push(left);
                 new.push(right);
@@ -82,21 +72,21 @@ impl Lexer {
                 break;
             }
         }
-        Some(left)
+        Good(left)
     }
 
-    fn parse_bitwise(&mut self) -> Option<Node> {
+    fn parse_bitwise(&mut self) -> Handler<Node, String> {
         let mut left: Node = match self.parse_compare() {
-            Some(n) => n,
-            None => { return None; }
+            Good(n) => n,
+            Bad(b) => { return Bad(b); }
         };
 
         while let Some(tk) = self.tokens.pop() {
             if tk.kind == TT::BinaryOperator && (tk.value == "&" || tk.value == "|") {
                 let mut new: Node = Node::from(tk);
                 let right: Node = match self.parse_compare() {
-                    Some(n) => n,
-                    None => { return None; }
+                    Good(n) => n,
+                    Bad(b) => { return Bad(b); }
                 };
                 new.push(left);
                 new.push(right);
@@ -106,13 +96,13 @@ impl Lexer {
                 break;
             }
         }
-        Some(left)
+        Good(left)
     }
 
-    fn parse_compare(&mut self) -> Option<Node> {
+    fn parse_compare(&mut self) -> Handler<Node, String> {
         let mut left: Node = match self.parse_additive() {
-            Some(n) => n,
-            None => { return None; }
+            Good(n) => n,
+            Bad(b) => { return Bad(b); }
         };
 
         while let Some(tk) = self.tokens.pop() {
@@ -122,8 +112,8 @@ impl Lexer {
             ) {
                 let mut new: Node = Node::from(tk);
                 let right: Node = match self.parse_additive() {
-                    Some(n) => n,
-                    None => { return None; }
+                    Good(n) => n,
+                    Bad(b) => { return Bad(b); }
                 };
                 new.push(left);
                 new.push(right);
@@ -133,21 +123,21 @@ impl Lexer {
                 break;
             }
         }
-        Some(left)
+        Good(left)
     }
 
-    fn parse_additive(&mut self) -> Option<Node> {
+    fn parse_additive(&mut self) -> Handler<Node, String> {
         let mut left: Node = match self.parse_multiply() {
-            Some(n) => n,
-            None => { return None; }
+            Good(n) => n,
+            Bad(b) => { return Bad(b); }
         };
 
         while let Some(tk) = self.tokens.pop() {
             if tk.kind == TT::BinaryOperator && (tk.value == "+" || tk.value == "-") {
                 let mut new: Node = Node::from(tk);
                 let right: Node = match self.parse_multiply() {
-                    Some(n) => n,
-                    None => { return None; }
+                    Good(n) => n,
+                    Bad(b) => { return Bad(b); }
                 };
                 new.push(left);
                 new.push(right);
@@ -157,21 +147,21 @@ impl Lexer {
                 break;
             }
         }
-        Some(left)
+        Good(left)
     }
 
-    fn parse_multiply(&mut self) -> Option<Node> {
+    fn parse_multiply(&mut self) -> Handler<Node, String> {
         let mut left: Node = match self.parse_unary() {
-            Some(n) => n,
-            None => { return None; }
+            Good(n) => n,
+            Bad(b) => { return Bad(b); }
         };
 
         while let Some(tk) = self.tokens.pop() {
             if tk.kind == TT::BinaryOperator && (tk.value == "*" || tk.value == "/") {
                 let mut new: Node = Node::from(tk);
                 let right: Node = match self.parse_unary() {
-                    Some(n) => n,
-                    None => { return None; }
+                    Good(n) => n,
+                    Bad(b) => { return Bad(b); }
                 };
                 new.push(left);
                 new.push(right);
@@ -181,69 +171,66 @@ impl Lexer {
                 break;
             }
         }
-        Some(left)
+        Good(left)
     }
 
-    fn parse_unary(&mut self) -> Option<Node> {
+    fn parse_unary(&mut self) -> Handler<Node, String> {
         while let Some(tk) = self.tokens.pop() {
             if tk.kind == TT::UnaryOperator {
                 let mut new: Node = Node::from(tk);
                 let node: Node = match self.parse_unary() {
-                    Some(n) => n,
-                    None => { return None; }
+                    Good(n) => n,
+                    Bad(b) => { return Bad(b); }
                 };
                 new.push(node);
-                return Some(new);
+                return Good(new);
             } else {
                 self.tokens.push(tk);
                 break;
             }
         }
-        match self.parse_primary() {
-            Some(n) => Some(n),
-            None => { return None; }
-        }
+        self.parse_primary()
     }
 
-    fn parse_primary(&mut self) -> Option<Node> {
+    fn parse_primary(&mut self) -> Handler<Node, String> {
         if let Some(tk) = self.tokens.pop() {
             match tk.kind {
                 TT::Identifier |
                 TT::Integer |
-                TT::String => Some(Node::from(tk)),
+                TT::String => Good(Node::from(tk)),
                 TT::OpenParentheses => self.parse_parentheses(),
-                _ => None
+                _ => Bad(Error::not_primary_token(&self, tk))
             }
         } else {
-            None
+            Bad(Error::nothing_to_parse(self))
         }
     }
 
-    fn parse_parentheses(&mut self) -> Option<Node> {
+    fn parse_parentheses(&mut self) -> Handler<Node, String> {
         let expr: Node = match self.parse_expression() {
-            Some(n) => n,
-            None => { return None; }
+            Good(n) => n,
+            Bad(b) => { return Bad(b); }
         };
         
         if let Some(cp) = self.tokens.pop() {
             if cp.kind != TT::CloseParentheses {
-                return None;
+                return Bad(Error::expected_close_parentheses(self, cp));
             }
         } else {
-            return None;
+            return Bad(Error::nothing_to_parse(self));
         }
-        Some(expr)
+        Good(expr)
     }
 }
 
 
-fn scan(input: &String) -> Handler<Vec<Token>, ES> {
+fn scan(input: &String) -> Handler<Vec<Token>, String> {
     let mut tokens = vec![Token::new(TT::Null, 0)];
 
     for (i, ch) in input.chars().enumerate() {
         let last: &mut Token = match tokens.last_mut() {
             Some(tk) => tk,
-            None => { return Bad(ES::new(E::unknown())); }
+            None => { return Bad(Error::unknown()); }
         };  
 
         if last.kind == TT::Null && last.value.len() > 0 {
@@ -332,7 +319,7 @@ fn scan(input: &String) -> Handler<Vec<Token>, ES> {
             new.push(ch);
             tokens.push(new);
         } else {
-            return Bad(ES::new(E::lexer_invalid_char(input, i)));
+            return Bad(Error::lexer_invalid_char(input, i));
         }
     }
     tokens.reverse();

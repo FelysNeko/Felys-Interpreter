@@ -6,9 +6,9 @@ use frontend::Node;
 use frontend::Lexer;
 use runtime::Value;
 use runtime::Scope;
+use crate::error::Handler::{Good, Bad};
 
 use std::io::{self, Write};
-use std::process::exit;
 
 fn main() {
     let mut env: Scope = Scope::new();
@@ -22,8 +22,11 @@ fn main() {
         expr.pop();
 
         let entry: Node = match Lexer::parse(expr) {
-            Some(e) => e,
-            None => exit(1)
+            Good(n) => n,
+            Bad(b) => {
+                println!("{}", b);
+                continue;
+            }
         };
         let result: Value = entry.eval(&mut env);
         println!("{}", result.value);
