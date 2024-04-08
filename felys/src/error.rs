@@ -1,14 +1,25 @@
 use colored::Colorize;
 use crate::frontend::{Lexer, Token};
 
-pub enum Handler<T, E> {
+pub enum Handler<T, M> {
     Good(T),
-    Bad(E)
+    Bad(M)
 }
 
-pub struct Error;
+pub struct Msg;
 
-impl Error {
+#[macro_export]
+macro_rules! return_if_err {
+    ($e:expr) => {
+        match $e {
+            Good(n) => n,
+            Bad(b) => { return Bad(b); }
+        }
+    };
+}
+
+
+impl Msg {
     pub fn unknown() -> String {
         format!(
             "{} but message not implented",
