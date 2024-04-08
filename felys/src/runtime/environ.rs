@@ -18,7 +18,7 @@ impl Scope {
             String::from("false"),
             Value::new(RT::Bool, String::from("false"))
         );
-        env.assign(
+        env.map.insert(
             String::from("elysia"),
             Value::new(RT::String, String::from("嗨～想我了吗？"))
         );
@@ -34,6 +34,8 @@ impl Scope {
     }
 
     pub fn assign(&mut self, k:String, v:Value) {
-        self.map.insert(k, v);
+        if k.as_str() != "elysia" {
+            self.map.insert(k, v);
+        }
     }
 }
