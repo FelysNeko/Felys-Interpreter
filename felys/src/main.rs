@@ -11,6 +11,7 @@ use std::io::{self, Write};
 fn main() {
     let mut env: Scope = Scope::new();
     print!("\x1B[2J\x1B[1;1H");
+    println!("Felys 0.1.0");
     loop {
         print!("> ");
         let mut expr: String = String::new();
