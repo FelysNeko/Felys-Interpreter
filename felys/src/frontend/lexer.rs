@@ -127,7 +127,9 @@ impl Lexer {
         let mut left: Node = return_if_err!(self.parse_unary());
 
         while let Some(tk) = self.tokens.pop() {
-            if tk.kind == TT::BinaryOperator && (tk.value == "*" || tk.value == "/") {
+            if tk.kind == TT::BinaryOperator && (
+                tk.value == "*" || tk.value == "/" || tk.value == "%"
+            ) {
                 let mut new: Node = Node::from(tk);
                 let right: Node = return_if_err!(self.parse_unary());
                 new.push(left);
