@@ -33,28 +33,28 @@ impl Msg {
 
     pub fn variable_not_defined(input:String) -> String {
         format!(
-            "{}: the variable {} is not defined",
+            "{}: the variable `{}` is not defined",
             "Error".red(), input.red()
         )
     }
 
     pub fn binary_operation_not_implented(n:&Node) -> String {
         format!(
-            "{}: have not implement {} binary operation",
+            "{}: have not implement `{}` binary operation",
             "Error".red(), n.value.red()
         )
     }
 
     pub fn unary_operation_not_implented(n:&Node) -> String {
         format!(
-            "{}: have not implement {} unary operation",
+            "{}: have not implement `{}` unary operation",
             "Error".red(), n.value.red()
         )
     }
 
     pub fn cannot_parse_to_isize(val:&Value) -> String {
         format!(
-            "{}: cannot parse {} to isize",
+            "{}: cannot parse `{}` to isize",
             "Error".red(), val.value.red()
         )
     }
@@ -91,7 +91,7 @@ impl Msg {
     
     pub fn nothing_to_parse(lxr:&Lexer) -> String {
         let mut space = String::new();
-        for _ in 0..lxr.input.len()+1 {
+        for _ in 0..lxr.input.len() {
             space.push(' ');
         }
         format!(
