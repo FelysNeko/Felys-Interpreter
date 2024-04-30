@@ -254,28 +254,22 @@ impl Lexer {
                     new.push(ch);
                     self.tokens.push(new);
                 }
-            } else if ch == '\'' || ch == '\"' {
-                let mut new: Token = Token::new(TT::Null, i);
-                new.push(ch);
-                self.tokens.push(new);
-            } else if ch == '!' || ch == '~' {
-                let mut new: Token = Token::new(TT::UnaryOperator, i);
-                new.push(ch);
-                self.tokens.push(new);
-            } else if ch == '*' || ch == '/' || ch == '>' || ch == '<' || ch == '^' || ch == '%' {
-                let mut new: Token = Token::new(TT::BinaryOperator, i);
-                new.push(ch);
-                self.tokens.push(new);
-            } else if ch == '(' {
-                let mut new: Token = Token::new(TT::OpenParentheses, i);
-                new.push(ch);
-                self.tokens.push(new);
-            } else if ch == ')' {
-                let mut new: Token = Token::new(TT::CloseParentheses, i);
-                new.push(ch);
-                self.tokens.push(new);
             } else {
-                exit(1);
+                let kind: TT = match ch {
+                    '(' => TT::OpenParentheses,
+                    ')' => TT::CloseParentheses,
+                    '\'' |
+                    '\"' => TT::Null,
+                    '!' |
+                    '~' => TT::UnaryOperator,
+                    '*' | '/' | '%' |
+                    '>' | '<' |
+                    '^' => TT::BinaryOperator,
+                    _ => exit(1)
+                };
+                let mut new: Token = Token::new(kind, i);
+                new.push(ch);
+                self.tokens.push(new);
             }
         }
         self.tokens.reverse();
