@@ -184,17 +184,17 @@ impl Lexer {
 impl Lexer {
     fn _scan(&mut self) {    
         for (i, ch) in self.input.chars().enumerate() {
-            let last: &mut Token = match self.tokens.last_mut() {
+            let prev: &mut Token = match self.tokens.last_mut() {
                 Some(tk) => tk,
                 None => exit(1)
             };
     
-            if last.kind == TT::Null && last.value.len() > 0 {
-                if last.value.starts_with(ch) {
-                    last.value.remove(0);
-                    last.kind = TT::String;
+            if prev.kind == TT::Null && prev.value.len() > 0 {
+                if prev.value.starts_with(ch) {
+                    prev.value.remove(0);
+                    prev.kind = TT::String;
                 } else {
-                    last.value.push(ch);
+                    prev.value.push(ch);
                 }
                 continue;
             }
@@ -204,8 +204,8 @@ impl Lexer {
             }
             
             if ch.is_ascii_alphabetic() || ch == '_' {
-                match last.kind {
-                    TT::Identifier => last.push(ch),
+                match prev.kind {
+                    TT::Identifier => prev.push(ch),
                     _ => {
                         let mut new: Token = Token::new(TT::Identifier, i);
                         new.push(ch);
@@ -213,9 +213,9 @@ impl Lexer {
                     }
                 }
             } else if ch.is_ascii_digit() {
-                match last.kind {
+                match prev.kind {
                     TT::Identifier |
-                    TT::Integer => last.push(ch),
+                    TT::Integer => prev.push(ch),
                     _ => {
                         let mut new: Token = Token::new(TT::Integer, i);
                         new.push(ch);
@@ -224,31 +224,32 @@ impl Lexer {
                 }
             } else if ch == '=' {
                 if (
-                    last.kind == TT::BinaryOperator && 
-                    (last.value == "=" || last.value == ">" || last.value == "<")
+                    prev.kind == TT::BinaryOperator && 
+                    (prev.value == "=" || prev.value == ">" || prev.value == "<")
                 ) || (
-                    last.kind == TT::UnaryOperator && last.value == "!"
+                    prev.kind == TT::UnaryOperator && prev.value == "!"
                 ) {
-                    last.kind = TT::BinaryOperator;
-                    last.value.push(ch)
+                    prev.kind = TT::BinaryOperator;
+                    prev.value.push(ch)
                 } else {
                     let mut new: Token = Token::new(TT::BinaryOperator, i);
                     new.push(ch);
                     self.tokens.push(new);
                 }
             } else if ch == '+' || ch == '-' {
-                let mut new: Token = match last.kind {
+                let kind: TT = match prev.kind {
                     TT::BinaryOperator |
                     TT::UnaryOperator |
                     TT::OpenParentheses |
-                    TT::Null => Token::new(TT::UnaryOperator, i),
-                    _ => Token::new(TT::BinaryOperator, i)
+                    TT::Null => TT::UnaryOperator,
+                    _ => TT::BinaryOperator
                 };
+                let mut new: Token = Token::new(kind, i);
                 new.push(ch);
                 self.tokens.push(new);
             } else if ch == '&' || ch == '|' { 
-                if last.kind == TT::BinaryOperator && (last.value == "&" || last.value == "|") {
-                    last.push(ch)
+                if prev.kind == TT::BinaryOperator && (prev.value == "&" || prev.value == "|") {
+                    prev.push(ch)
                 } else {
                     let mut new: Token = Token::new(TT::BinaryOperator, i);
                     new.push(ch);
