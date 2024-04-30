@@ -1,6 +1,5 @@
 mod lexer;
-mod token;
-mod node;
+mod more;
 
 #[derive(PartialEq, Debug)]
 pub enum TokenType {
@@ -15,10 +14,10 @@ pub enum TokenType {
 }
 
 
-pub struct Token {
-    pub kind: TokenType,
-    pub value: String,
-    pub loc: (usize, usize)
+pub(super) struct Token {
+    kind: TokenType,
+    value: String,
+    loc: (usize, usize)
 }
 
 
@@ -31,6 +30,6 @@ pub struct Node {
 
 
 pub struct Lexer {
-    pub input: String,
-    pub tokens: Vec<Token>
+    input: String,
+    tokens: Vec<Token>
 }
