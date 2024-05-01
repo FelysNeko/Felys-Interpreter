@@ -1,23 +1,58 @@
-mod lexer;
-mod more;
+mod parser;
+mod scanner;
+mod helper;
 
-#[derive(PartialEq, Debug)]
+use std::iter::Peekable;
+use std::str::Chars;
+
+#[derive(PartialEq, Clone, Copy, Debug)]
 pub enum TokenType {
-    Null,
-    Identifier,
-    Integer,
-    String,
-    BinaryOperator,
-    UnaryOperator,
-    OpenParentheses,
-    CloseParentheses,
+    NULL,
+    IDENT,
+    NUMBER,
+    STRING,
+    LPAREN,
+    RPAREN,
+    LBRACE,
+    RBRACE,
+
+    // keyword
+    WHILE,
+    FUNC,
+    IF,
+    ELIF,
+    ELSE,
+
+    // boolean
+    TRUE,
+    FALSE,
+
+    // binary operator
+    ADD,
+    SUB,
+    MUL,
+    DIV,
+    MOD,
+    LGR,
+    SMR,
+    LEQ,
+    SEQ,
+    ASN,
+    EQ,
+    NE,
+    AND,
+    OR,
+
+    // unary operator
+    POS,
+    NEG,
+    NOT,
 }
 
-
-pub(super) struct Token {
+#[derive(Debug)]
+struct Token {
     kind: TokenType,
     value: String,
-    loc: (usize, usize)
 }
 
 
@@ -28,8 +63,19 @@ pub struct Node {
     pub branch: Vec<Node>
 }
 
-
-pub struct Lexer {
-    input: String,
+#[derive(Debug)]
+pub struct Lexer<'a> {
+    iter: Peekable<Chars<'a>>,
     tokens: Vec<Token>
+}
+
+impl Lexer<'_> {
+    pub fn parse(input: String) -> Node {
+        let mut lxr: Lexer<'_> = Lexer {
+            iter: input.chars().peekable(),
+            tokens: Vec::new()
+        };
+        lxr._scan();
+        lxr._parse()
+    }
 }

@@ -3,23 +3,41 @@ use super::Token;
 use super::TokenType as TT;
 
 impl Token {
-    pub fn new(kind: TT, s:usize) -> Self {
+    pub fn null() -> Self {
+        Self::new(TT::NULL)
+    }
+
+    pub fn identifier() -> Self {
+        Self::new(TT::IDENT)
+    }
+
+    pub fn number() -> Self {
+        Self::new(TT::NUMBER)
+    }
+
+    pub fn string() -> Self {
+        Self::new(TT::STRING)
+    }
+
+    pub fn new(kind: TT) -> Self {
         Self {
             kind,
             value: String::new(),
-            loc: (s, s)
         }
     }
 
     pub fn push(&mut self, ch:char) {
         self.value.push(ch);
-        self.loc.1 += 1;
+    }
+
+    pub fn to(&mut self, kind:TT) {
+        self.kind = kind;
     }
 }
 
 
 impl Node {
-    pub fn from(tk: Token) -> Self {
+    pub(super) fn from(tk: Token) -> Self {
         Self {
             kind: tk.kind,
             value: tk.value,
