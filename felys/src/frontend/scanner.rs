@@ -93,11 +93,10 @@ impl Lexer<'_> {
                 token.push(*ch);
                 self.iter.next();
             } else {
-                // stop scanning and return
-                return Some(token);
+                // stop scanning
+                break;
             }
         }
-        // return whatever we have when reaches the end
         Some(token)
     }
 
@@ -111,23 +110,23 @@ impl Lexer<'_> {
                 self.iter.next();
             } else {
                 // stop scanning
-                // set the token type based on content
-                match token.value.as_str() {
-                    "if" => token.to(TT::IF),
-                    "elif" => token.to(TT::ELIF),
-                    "else" => token.to(TT::ELSE),
-                    "func" => token.to(TT::FUNC),
-                    "true" => token.to(TT::TRUE),
-                    "false" => token.to(TT::FALSE),
-                    "while" => token.to(TT::WHILE),
-                    "and" => token.to(TT::AND),
-                    "or" => token.to(TT::OR),
-                    _ => (),
-                }
-                return Some(token);
+                break;
             }
         }
-        // return whatever we have when reaches the end
+
+        // set the token type based on content
+        match token.value.as_str() {
+            "if" => token.to(TT::IF),
+            "elif" => token.to(TT::ELIF),
+            "else" => token.to(TT::ELSE),
+            "func" => token.to(TT::FUNC),
+            "true" => token.to(TT::TRUE),
+            "false" => token.to(TT::FALSE),
+            "while" => token.to(TT::WHILE),
+            "and" => token.to(TT::AND),
+            "or" => token.to(TT::OR),
+            _ => (),
+        }
         Some(token)
     }
 

@@ -5,7 +5,7 @@ use frontend::Lexer;
 
 
 fn main() {
-    let expr: String = String::from("!1");
+    let expr: String = String::from("!false");
     let entry: Node = Lexer::parse(expr);
     println!("{:#?}", entry);
 }

@@ -130,6 +130,7 @@ impl Lexer<'_> {
             match tk.kind {
                 TT::IDENT |
                 TT::NUMBER |
+                TT::TRUE | TT::FALSE |
                 TT::STRING => Node::from(tk),
                 TT::LPAREN => self._parse_parentheses(),
                 // expect the arms above, but no show up
