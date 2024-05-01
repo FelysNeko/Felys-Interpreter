@@ -56,6 +56,11 @@ struct Token {
 }
 
 #[derive(Debug)]
+pub struct Program {
+    pub body: Vec<Statement>
+}
+
+#[derive(Debug)]
 pub struct Statement {
     pub keyword: TokenType,
     pub expr: Node,
@@ -77,7 +82,7 @@ pub struct Lexer<'a> {
 }
 
 impl Lexer<'_> {
-    pub fn parse(input: String) -> Option<Statement> {
+    pub fn parse(input: String) -> Program {
         let mut lxr: Lexer<'_> = Lexer {
             iter: input.chars().peekable(),
             tokens: Vec::new()

@@ -2,17 +2,23 @@ use std::process::exit;
 
 use super::Lexer;
 use super::Node;
+use super::Program;
 use super::Statement;
 use super::TokenType as TT;
 
 
 impl Lexer<'_> {
-    pub fn _parse(&mut self) -> Option<Statement> {
+    pub fn _parse(&mut self) -> Program {
         // we want to scan front left to right
         // but `pop()` get you the last element
         // so `reverse()` everything first
         self.tokens.reverse();
-        self._parse_statement()
+
+        let mut main: Program = Program::new();
+        while let Some(stat) = self._parse_statement() {
+            main.push(stat);
+        }
+        main
     }
 
     fn _parse_block(&mut self) -> Vec<Statement> {

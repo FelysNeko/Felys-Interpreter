@@ -1,4 +1,5 @@
 use super::Node;
+use super::Program;
 use super::Statement;
 use super::Token;
 use super::TokenType as TT;
@@ -54,5 +55,15 @@ impl Node {
 impl Statement {
     pub fn new(keyword: TT, expr: Node,  body: Vec<Statement>) -> Self {
         Self { keyword, expr, body }
+    }
+}
+
+impl Program {
+    pub fn new() -> Self {
+        Self { body: Vec::new() }
+    }
+
+    pub fn push(&mut self, stat: Statement) {
+        self.body.push(stat);
     }
 }
