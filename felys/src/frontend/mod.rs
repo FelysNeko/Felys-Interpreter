@@ -18,7 +18,6 @@ pub enum TokenType {
 
     // keyword
     WHILE,
-    FUNC,
     IF,
     ELIF,
     ELSE,

@@ -119,7 +119,6 @@ impl Lexer<'_> {
             "if" => token.to(TT::IF),
             "elif" => token.to(TT::ELIF),
             "else" => token.to(TT::ELSE),
-            "func" => token.to(TT::FUNC),
             "true" => token.to(TT::TRUE),
             "false" => token.to(TT::FALSE),
             "while" => token.to(TT::WHILE),
