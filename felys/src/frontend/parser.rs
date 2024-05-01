@@ -15,6 +15,24 @@ impl Lexer<'_> {
         self._parse_statement()
     }
 
+    fn _parse_block(&mut self) -> Vec<Statement> {
+        self._must_eat(TT::LBRACE);
+        let mut temp:Vec<Statement> = Vec::new();
+        while let Some(stat) = self._parse_statement() {
+            temp.push(stat);
+            if let Some(tk) = self.tokens.pop() {
+                if tk.kind == TT::RBRACE {
+                    break;
+                } else {
+                    self.tokens.push(tk);
+                }
+            } else {
+                exit(1)
+            }
+        }
+        temp
+    }
+
     fn _parse_statement(&mut self) -> Option<Statement> {
         if let Some(tk) = self.tokens.pop() {
             let keyword: TT = match tk.kind {
@@ -27,20 +45,17 @@ impl Lexer<'_> {
                     TT::NULL
                 }
             };
-
+            
             let expr: Node = self._parse_assignment();
 
-            if keyword == TT::NULL {
+            let body: Vec<Statement> = if keyword == TT::NULL {
                 self._must_eat(TT::SEMICOL);
+                Vec::new()
             } else {
-                self._must_eat(TT::LBRACE);
-            }
-
-            let stat: Statement = Statement {
-                keyword,
-                expr,
-                body: Vec::new()
+                self._parse_block()
             };
+
+            let stat: Statement = Statement::new(keyword, expr, body);
 
             Some(stat)
         } else {
