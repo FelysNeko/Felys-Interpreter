@@ -14,7 +14,7 @@ impl Lexer<'_> {
     fn _scan_next(&mut self) -> Option<Token> {
         // eat spaces
         while let Some(ch) = self.iter.peek() {
-            if *ch == ' ' {
+            if *ch == ' ' || *ch == '\n' {
                 self.iter.next();
             } else {
                 break;
@@ -44,7 +44,8 @@ impl Lexer<'_> {
                 '(' |
                 ')' |
                 '{' |
-                '}' => self._scan_simple_single(),
+                '}' | 
+                ';' => self._scan_simple_single(),
                 _ => exit(1)
             }
         } else {
@@ -248,6 +249,7 @@ impl Lexer<'_> {
                 ')' => token.to(TT::RPAREN),
                 '{' => token.to(TT::LBRACE),
                 '}' => token.to(TT::RBRACE),
+                ';' => token.to(TT::SEMICOL),
                 _ => ()
             }
             Some(token)

@@ -15,6 +15,7 @@ pub enum TokenType {
     RPAREN,
     LBRACE,
     RBRACE,
+    SEMICOL,
 
     // keyword
     WHILE,
@@ -54,6 +55,13 @@ struct Token {
     value: String,
 }
 
+#[derive(Debug)]
+pub struct Statement {
+    pub keyword: TokenType,
+    pub expr: Node,
+    pub body: Vec<Statement>
+}
+
 
 #[derive(Debug)]
 pub struct Node {
@@ -69,7 +77,7 @@ pub struct Lexer<'a> {
 }
 
 impl Lexer<'_> {
-    pub fn parse(input: String) -> Node {
+    pub fn parse(input: String) -> Option<Statement> {
         let mut lxr: Lexer<'_> = Lexer {
             iter: input.chars().peekable(),
             tokens: Vec::new()

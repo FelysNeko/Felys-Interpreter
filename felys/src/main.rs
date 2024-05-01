@@ -1,11 +1,14 @@
 mod frontend;
 
-use frontend::Node;
+use std::fs;
+
 use frontend::Lexer;
 
 
 fn main() {
-    let expr: String = String::from("!false");
-    let entry: Node = Lexer::parse(expr);
-    println!("{:#?}", entry);
+    let file: String = fs::read_to_string("playground.ely").expect("failed to read");
+
+    if let Some(entry) = Lexer::parse(file) {
+        println!("{:#?}", entry)
+    }
 }

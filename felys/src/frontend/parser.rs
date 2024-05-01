@@ -2,16 +2,50 @@ use std::process::exit;
 
 use super::Lexer;
 use super::Node;
+use super::Statement;
 use super::TokenType as TT;
 
 
 impl Lexer<'_> {
-    pub fn _parse(&mut self) -> Node {
+    pub fn _parse(&mut self) -> Option<Statement> {
         // we want to scan front left to right
         // but `pop()` get you the last element
         // so `reverse()` everything first
         self.tokens.reverse();
-        self._parse_expression()
+        self._parse_statement()
+    }
+
+    fn _parse_statement(&mut self) -> Option<Statement> {
+        if let Some(tk) = self.tokens.pop() {
+            let keyword: TT = match tk.kind {
+                TT::WHILE |
+                TT::ELSE |
+                TT::ELIF |
+                TT::IF => tk.kind,
+                _ => {
+                    self.tokens.push(tk);
+                    TT::NULL
+                }
+            };
+
+            let expr: Node = self._parse_assignment();
+
+            if keyword == TT::NULL {
+                self._must_eat(TT::SEMICOL);
+            } else {
+                self._must_eat(TT::LBRACE);
+            }
+
+            let stat: Statement = Statement {
+                keyword,
+                expr,
+                body: Vec::new()
+            };
+
+            Some(stat)
+        } else {
+            None
+        }
     }
 
     fn _parse_expression(&mut self) -> Node {
@@ -144,18 +178,20 @@ impl Lexer<'_> {
 
     fn _parse_parentheses(&mut self) -> Node {
         let expr: Node = self._parse_expression();
-        
-        // eat right parentheses
+        self._must_eat(TT::RPAREN);
+        expr
+    }
+
+    fn _must_eat(&mut self, kind: TT) {
         if let Some(cp) = self.tokens.pop() {
-            if cp.kind != TT::RPAREN {
-                // next token is not right parentheses
+            if cp.kind != kind {
+                // next token is not right
                 exit(1);
             }
         } else {
             // no more tokens
             exit(1);
         }
-        expr
     }
 }
 
