@@ -4,7 +4,7 @@ use super::Node;
 use super::TokenType as TT;
 
 impl Lexer<'_> {
-    pub fn _parse_statement(&mut self) -> Option<Statement> {
+    pub(super) fn parse_next(&mut self) -> Option<Statement> {
         if let Some(tk) = self.tokens.last() {
             let stat: Statement = match tk.kind {
                 TT::WHILE => self._parse_while(),
@@ -102,7 +102,7 @@ impl Lexer<'_> {
         self._must_eat(TT::LBRACE);
         let mut block: Vec<Statement> = Vec::new();
 
-        while let Some(stat) = self._parse_statement() {
+        while let Some(stat) = self.parse_next() {
             block.push(stat);
 
             if let Some(tk) = self.tokens.last() {

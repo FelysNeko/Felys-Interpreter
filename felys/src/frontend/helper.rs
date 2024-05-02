@@ -39,7 +39,7 @@ impl Token {
 
 
 impl Node {
-    pub(super) fn from(tk: Token) -> Self {
+    pub fn from(tk: Token) -> Self {
         Self {
             kind: tk.kind,
             value: tk.value,

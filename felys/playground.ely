@@ -10,4 +10,4 @@ while x == 10 {
     }
 }
 
-greet = 'hello, world';
+greet = 'hello elysia!';

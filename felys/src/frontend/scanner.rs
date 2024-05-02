@@ -5,13 +5,7 @@ use super::Token;
 use super::TokenType as TT;
 
 impl Lexer<'_> {
-    pub fn _scan(&mut self) {    
-        while let Some(tk) = self._scan_next() {
-            self.tokens.push(tk);
-        }
-    }
-
-    fn _scan_next(&mut self) -> Option<Token> {
+    pub(super) fn scan_next(&mut self) -> Option<Token> {
         // eat spaces
         while let Some(ch) = self.iter.peek() {
             if *ch == ' ' || *ch == '\n' {
@@ -153,7 +147,7 @@ impl Lexer<'_> {
 
     fn _scan_add_binoptr(&mut self) -> Option<Token> {
         // this decides whether an additive sign is a unary or binary operator
-        // type `TT::NULL` is assigned to `prev` nothing yet in `self.tokens`
+        // type `TT::NULL` is assigned to `prev` when nothing yet in `self.tokens`
         // in other word, this token is the first token of the input
         let prev = match self.tokens.last() {
             Some(tk) => tk.kind,

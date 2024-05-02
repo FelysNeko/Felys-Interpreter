@@ -51,9 +51,9 @@ pub enum TokenType {
 }
 
 #[derive(Debug)]
-struct Token {
-    kind: TokenType,
-    value: String,
+pub struct Token {
+    pub kind: TokenType,
+    pub value: String,
 }
 
 #[derive(Debug)]
@@ -78,8 +78,8 @@ pub struct Node {
 
 #[derive(Debug)]
 pub struct Lexer<'a> {
-    iter: Peekable<Chars<'a>>,
-    tokens: Vec<Token>
+    pub iter: Peekable<Chars<'a>>,
+    pub tokens: Vec<Token>
 }
 
 impl Lexer<'_> {
@@ -88,7 +88,20 @@ impl Lexer<'_> {
             iter: input.chars().peekable(),
             tokens: Vec::new()
         };
-        lxr._scan();
-        lxr._parse()
+
+        while let Some(tk) = lxr.scan_next() {
+            lxr.tokens.push(tk);
+        };
+
+        // we want to scan front left to right
+        // but `pop()` get you the last element
+        // so `reverse()` everything first
+        lxr.tokens.reverse();
+
+        let mut main: Program = Program::new();
+        while let Some(stat) = lxr.parse_next() {
+            main.push(stat);
+        }
+        main
     }
 }
