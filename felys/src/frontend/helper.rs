@@ -47,14 +47,23 @@ impl Node {
         }
     }
 
+    pub fn null() -> Self {
+        Node::from(Token::null())
+    }
+
     pub fn push(&mut self, n:Node) {
         self.branch.push(n)
     }
 }
 
 impl Statement {
-    pub fn new(keyword: TT, expr: Node,  body: Vec<Statement>) -> Self {
-        Self { keyword, expr, body }
+    pub fn new(
+        keyword: Option<TT>,
+        expr: Option<Node>,
+        alter: Option<Box<Statement>>,
+        body: Option<Vec<Statement>>
+    ) -> Self {
+        Self { keyword, expr, alter, body }
     }
 }
 

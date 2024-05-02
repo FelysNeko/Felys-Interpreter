@@ -46,7 +46,10 @@ impl Lexer<'_> {
                 '{' |
                 '}' | 
                 ';' => self._scan_simple_single(),
-                _ => exit(1)
+                _ => {
+                    println!("invalid char [{}]", ch);
+                    exit(1)
+                }
             }
         } else {
             None
@@ -72,6 +75,7 @@ impl Lexer<'_> {
         }
 
         // scanning fail if end of string symbol does not show up
+        println!("string [{}] is not closed", token.value);
         exit(1);
     }
 
@@ -85,6 +89,7 @@ impl Lexer<'_> {
                 // dot can only show up once
                 if *ch == '.' {
                     if dot {
+                        println!("decimal point appeared twice");
                         exit(1)
                     } else {
                         dot = true;

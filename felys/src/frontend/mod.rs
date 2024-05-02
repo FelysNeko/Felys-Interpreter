@@ -1,6 +1,7 @@
 mod parser;
 mod scanner;
 mod helper;
+mod statement;
 
 use std::iter::Peekable;
 use std::str::Chars;
@@ -62,11 +63,11 @@ pub struct Program {
 
 #[derive(Debug)]
 pub struct Statement {
-    pub keyword: TokenType,
-    pub expr: Node,
-    pub body: Vec<Statement>
+    pub keyword: Option<TokenType>,
+    pub expr: Option<Node>,
+    pub body: Option<Vec<Statement>>,
+    pub alter: Option<Box<Statement>>
 }
-
 
 #[derive(Debug)]
 pub struct Node {

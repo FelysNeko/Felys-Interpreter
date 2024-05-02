@@ -3,7 +3,6 @@ use std::process::exit;
 use super::Lexer;
 use super::Node;
 use super::Program;
-use super::Statement;
 use super::TokenType as TT;
 
 
@@ -21,55 +20,7 @@ impl Lexer<'_> {
         main
     }
 
-    fn _parse_block(&mut self) -> Vec<Statement> {
-        self._must_eat(TT::LBRACE);
-        let mut temp:Vec<Statement> = Vec::new();
-        while let Some(stat) = self._parse_statement() {
-            temp.push(stat);
-            if let Some(tk) = self.tokens.pop() {
-                if tk.kind == TT::RBRACE {
-                    break;
-                } else {
-                    self.tokens.push(tk);
-                }
-            } else {
-                exit(1)
-            }
-        }
-        temp
-    }
-
-    fn _parse_statement(&mut self) -> Option<Statement> {
-        if let Some(tk) = self.tokens.pop() {
-            let keyword: TT = match tk.kind {
-                TT::WHILE |
-                TT::ELSE |
-                TT::ELIF |
-                TT::IF => tk.kind,
-                _ => {
-                    self.tokens.push(tk);
-                    TT::NULL
-                }
-            };
-            
-            let expr: Node = self._parse_assignment();
-
-            let body: Vec<Statement> = if keyword == TT::NULL {
-                self._must_eat(TT::SEMICOL);
-                Vec::new()
-            } else {
-                self._parse_block()
-            };
-
-            let stat: Statement = Statement::new(keyword, expr, body);
-
-            Some(stat)
-        } else {
-            None
-        }
-    }
-
-    fn _parse_expression(&mut self) -> Node {
+    pub fn _parse_expression(&mut self) -> Node {
         self._parse_assignment()
     }
 
@@ -188,11 +139,15 @@ impl Lexer<'_> {
                 TT::TRUE | TT::FALSE |
                 TT::STRING => Node::from(tk),
                 TT::LPAREN => self._parse_parentheses(),
-                // expect the arms above, but no show up
-                _ => exit(1)
+                // expect the arms above, but not show up
+                _ => {
+                    println!("unexpected token [{:?}]", tk.kind);
+                    exit(1)
+                }
             }
         } else {
             // expect something after operation sign, but no more tokens
+            println!("no more token");
             exit(1)
         }
     }
@@ -203,14 +158,16 @@ impl Lexer<'_> {
         expr
     }
 
-    fn _must_eat(&mut self, kind: TT) {
+    pub fn _must_eat(&mut self, kind: TT) {
         if let Some(cp) = self.tokens.pop() {
             if cp.kind != kind {
                 // next token is not right
+                println!("expect [{:?}], but see [{:?}]", kind, cp.kind);
                 exit(1);
             }
         } else {
             // no more tokens
+            println!("expect [{:?}], but no more token", kind);
             exit(1);
         }
     }
