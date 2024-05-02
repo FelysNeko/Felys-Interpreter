@@ -1,8 +1,15 @@
 use std::process::exit;
 
 use super::Lexer;
-use super::Token;
-use super::TokenType as TT;
+use crate::core::TokenType as TT;
+
+
+#[derive(Debug)]
+pub struct Token {
+    pub kind: TT,
+    pub value: String,
+}
+
 
 impl Lexer<'_> {
     pub(super) fn scan_next(&mut self) -> Option<Token> {
@@ -255,5 +262,39 @@ impl Lexer<'_> {
         } else {
             None
         }
+    }
+}
+
+
+impl Token {
+    pub fn null() -> Self {
+        Self::new(TT::NULL)
+    }
+
+    pub fn identifier() -> Self {
+        Self::new(TT::IDENT)
+    }
+
+    pub fn number() -> Self {
+        Self::new(TT::NUMBER)
+    }
+
+    pub fn string() -> Self {
+        Self::new(TT::STRING)
+    }
+
+    pub fn new(kind: TT) -> Self {
+        Self {
+            kind,
+            value: String::new(),
+        }
+    }
+
+    pub fn push(&mut self, ch:char) {
+        self.value.push(ch);
+    }
+
+    pub fn to(&mut self, kind:TT) {
+        self.kind = kind;
     }
 }

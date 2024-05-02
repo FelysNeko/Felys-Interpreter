@@ -1,8 +1,16 @@
 use std::process::exit;
 
+use crate::core::TokenType as TT;
 use super::Lexer;
-use super::Node;
-use super::TokenType as TT;
+use super::Token;
+
+
+#[derive(Debug)]
+pub struct Node {
+    pub kind: TT,
+    pub value: String,
+    pub branch: Vec<Node>
+}
 
 
 impl Lexer<'_> {
@@ -159,3 +167,21 @@ impl Lexer<'_> {
     }
 }
 
+
+impl Node {
+    pub fn from(tk: Token) -> Self {
+        Self {
+            kind: tk.kind,
+            value: tk.value,
+            branch: Vec::new()
+        }
+    }
+
+    pub fn null() -> Self {
+        Node::from(Token::null())
+    }
+
+    pub fn push(&mut self, n:Node) {
+        self.branch.push(n)
+    }
+}

@@ -1,7 +1,16 @@
+use crate::core::TokenType as TT;
 use super::Lexer;
-use super::Statement;
 use super::Node;
-use super::TokenType as TT;
+
+
+#[derive(Debug)]
+pub struct Statement {
+    pub keyword: Option<TT>,
+    pub expr: Option<Node>,
+    pub body: Option<Vec<Statement>>,
+    pub alter: Option<Box<Statement>>
+}
+
 
 impl Lexer<'_> {
     pub(super) fn parse_next(&mut self) -> Option<Statement> {
@@ -114,5 +123,17 @@ impl Lexer<'_> {
         
         self._must_eat(TT::RBRACE);
         block
+    }
+}
+
+
+impl Statement {
+    pub fn new(
+        keyword: Option<TT>,
+        expr: Option<Node>,
+        alter: Option<Box<Statement>>,
+        body: Option<Vec<Statement>>
+    ) -> Self {
+        Self { keyword, expr, alter, body }
     }
 }
