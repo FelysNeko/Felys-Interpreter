@@ -122,12 +122,12 @@ impl Lexer<'_> {
             "if" => token.to(TT::IF),
             "elif" => token.to(TT::ELIF),
             "else" => token.to(TT::ELSE),
-            "true" => token.to(TT::TRUE),
-            "false" => token.to(TT::FALSE),
             "while" => token.to(TT::WHILE),
-            "and" => token.to(TT::AND),
-            "or" => token.to(TT::OR),
             "print" => token.to(TT::PRINT),
+            "true" |
+            "false" => token.to(TT::BOOLEAN),
+            "and" |
+            "or" => token.to(TT::BINOPTR),
             _ => (),
         }
         Some(token)
@@ -135,14 +135,8 @@ impl Lexer<'_> {
 
     fn _scan_simple_binoptr(&mut self) -> Option<Token> {
         if let Some(ch) = self.iter.next() {
-            let mut token: Token = Token::null();
+            let mut token: Token = Token::binoptr();
             token.push(ch);
-            match ch {
-                '*' => token.to(TT::MUL),
-                '/' => token.to(TT::DIV),
-                '%' => token.to(TT::MOD),
-                _ => ()
-            }
             Some(token)
         } else {
             None
@@ -159,28 +153,14 @@ impl Lexer<'_> {
         };
 
         if let Some(ch) = self.iter.next() {
-            let mut token: Token = Token::null();
+            let mut token: Token = Token::binoptr();
             match prev {
-                // all binary operator
-                // all unary operator
-                // left parentheses
-                // it's the first token
-                TT::ADD | TT::SUB | TT::MUL | TT::DIV | TT::MOD |
-                TT::SMR | TT::LGR | TT::SEQ | TT::LEQ | TT::EQ | TT::NE |
-                TT::AND | TT::OR |
-                TT::POS | TT::NEG | TT::NOT |
+                TT::BINOPTR |
+                TT::UNAOPTR |
                 TT::LPAREN |
-                TT::NULL => if ch == '+' {
-                    token.to(TT::POS)
-                } else if ch == '-' {
-                    token.to(TT::NEG)
-                },
-                // otherwise, it's normal binary operator
-                _ =>  if ch == '+' {
-                    token.to(TT::ADD)
-                } else if ch == '-' {
-                    token.to(TT::SUB)
-                }
+                TT::NULL => token.to(TT::UNAOPTR),
+                _ => ()
+                
             };
             token.push(ch);
             Some(token)
@@ -191,7 +171,7 @@ impl Lexer<'_> {
 
     fn _scan_comp_binoptr(&mut self) -> Option<Token> {
         if let Some(ch) = self.iter.next() {
-            let mut token: Token = Token::null();
+            let mut token: Token = Token::binoptr();
             token.push(ch);
 
             // scan one more char to see if it is `=`
@@ -201,16 +181,6 @@ impl Lexer<'_> {
                     token.push(*ch);
                     self.iter.next();
                 }
-            }
-            
-            match token.value.as_str() {
-                "=" => token.to(TT::ASN),
-                "<" => token.to(TT::SMR),
-                ">" => token.to(TT::LGR),
-                "==" => token.to(TT::EQ),
-                "<=" => token.to(TT::SEQ),
-                ">=" => token.to(TT::LEQ),
-                _ => ()
             }
             Some(token)
         } else {
@@ -220,7 +190,7 @@ impl Lexer<'_> {
 
     fn _scan_unaoptr(&mut self) -> Option<Token> {
         if let Some(ch) = self.iter.next() {
-            let mut token: Token = Token::null();
+            let mut token: Token = Token::unaoptr();
             token.push(ch);
 
             // scan one more char to see if it is `=`
@@ -230,12 +200,6 @@ impl Lexer<'_> {
                     token.push(*ch);
                     self.iter.next();
                 }
-            }
-
-            match token.value.as_str() {
-                "!" => token.to(TT::NOT),
-                "!=" => token.to(TT::NE),
-                _ => ()
             }
             Some(token)
         } else {
@@ -266,6 +230,14 @@ impl Lexer<'_> {
 impl Token {
     pub fn null() -> Self {
         Self::new(TT::NULL)
+    }
+
+    pub fn unaoptr() -> Self {
+        Self::new(TT::UNAOPTR)
+    }
+
+    pub fn binoptr() -> Self {
+        Self::new(TT::BINOPTR)
     }
 
     pub fn identifier() -> Self {

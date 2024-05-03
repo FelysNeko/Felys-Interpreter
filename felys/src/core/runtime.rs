@@ -6,8 +6,7 @@ pub enum RuntimeType {
     NUMBER,
     STRING,
     IDENT,
-    TRUE,
-    FALSE,
+    BOOLEAN
 }
 
 

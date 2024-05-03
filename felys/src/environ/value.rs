@@ -19,8 +19,7 @@ impl Value {
             TT::STRING => RT::STRING,
             TT::NUMBER => RT::NUMBER,
             TT::IDENT => RT::IDENT,
-            TT::TRUE => RT::TRUE,
-            TT::FALSE => RT::FALSE,
+            TT::BOOLEAN => RT::BOOLEAN,
             _ => {
                 println!("cannot convert [{:?}] to runtime type", n.kind);
                 exit(1)

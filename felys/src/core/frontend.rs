@@ -13,38 +13,14 @@ pub enum TokenType {
     LBRACE,
     RBRACE,
     SEMICOL,
-
-    // keyword
+    BOOLEAN,
+    BINOPTR,
+    UNAOPTR,
     WHILE,
     IF,
     ELIF,
     ELSE,
-    PRINT,
-
-    // boolean
-    TRUE,
-    FALSE,
-
-    // binary operator
-    ADD,
-    SUB,
-    MUL,
-    DIV,
-    MOD,
-    LGR,
-    SMR,
-    LEQ,
-    SEQ,
-    ASN,
-    EQ,
-    NE,
-    AND,
-    OR,
-
-    // unary operator
-    POS,
-    NEG,
-    NOT,
+    PRINT
 }
 
 

@@ -17,7 +17,7 @@ impl Lexer<'_> {
         let mut left: Node = self._parse_logical();
 
         while let Some(tk) = self.tokens.pop() {
-            if tk.kind == TT::ASN {
+            if tk.kind == TT::BINOPTR && tk.value == "=" {
                 let mut new: Node = Node::from(tk);
                 let right: Node = self._parse_assignment();
                 new.push(left);
@@ -35,7 +35,7 @@ impl Lexer<'_> {
         let mut left: Node = self._parse_compare();
 
         while let Some(tk) = self.tokens.pop() {
-            if tk.kind == TT::AND || tk.kind == TT::OR {
+            if tk.kind == TT::BINOPTR && (tk.value=="and" || tk.value=="or") {
                 let mut new: Node = Node::from(tk);
                 let right: Node = self._parse_compare();
                 new.push(left);
@@ -53,9 +53,10 @@ impl Lexer<'_> {
         let mut left: Node = self._parse_additive();
 
         while let Some(tk) = self.tokens.pop() {
-            if tk.kind == TT::EQ || tk.kind == TT::NE ||
-            tk.kind == TT::SEQ || tk.kind == TT::LEQ ||
-            tk.kind == TT::SMR || tk.kind == TT::LGR {
+            if tk.kind == TT::BINOPTR && (
+                tk.value == "==" || tk.value == "!=" || tk.value == ">" ||
+                tk.value == ">=" || tk.value == "<=" || tk.value == "<"
+            ) {
                 let mut new: Node = Node::from(tk);
                 let right: Node = self._parse_additive();
                 new.push(left);
@@ -73,7 +74,7 @@ impl Lexer<'_> {
         let mut left: Node = self._parse_multiply();
 
         while let Some(tk) = self.tokens.pop() {
-            if tk.kind == TT::ADD || tk.kind == TT::SUB {
+            if tk.kind == TT::BINOPTR && (tk.value == "+" || tk.value == "-") {
                 let mut new: Node = Node::from(tk);
                 let right: Node = self._parse_multiply();
                 new.push(left);
@@ -91,7 +92,9 @@ impl Lexer<'_> {
         let mut left: Node = self._parse_unary();
 
         while let Some(tk) = self.tokens.pop() {
-            if tk.kind == TT::MUL || tk.kind == TT::DIV || tk.kind == TT::MOD {
+            if tk.kind == TT::BINOPTR && (
+                tk.value == "*" || tk.value == "/" || tk.value == "%"
+            ) {
                 let mut new: Node = Node::from(tk);
                 let right: Node = self._parse_unary();
                 new.push(left);
@@ -107,7 +110,7 @@ impl Lexer<'_> {
 
     fn _parse_unary(&mut self) -> Node {
         while let Some(tk) = self.tokens.pop() {
-            if tk.kind == TT::POS || tk.kind == TT::NEG || tk.kind == TT::NOT {
+            if tk.kind == TT::UNAOPTR {
                 let mut new: Node = Node::from(tk);
                 let node: Node = self._parse_unary();
                 new.push(node);
@@ -125,7 +128,7 @@ impl Lexer<'_> {
             match tk.kind {
                 TT::IDENT |
                 TT::NUMBER |
-                TT::TRUE | TT::FALSE |
+                TT::BOOLEAN |
                 TT::STRING => Node::from(tk),
                 TT::LPAREN => self._parse_parentheses(),
                 // expect the arms above, but not show up
