@@ -3,10 +3,11 @@ use std::collections::HashMap;
 
 #[derive(Debug)]
 pub enum RuntimeType {
-    Number,
-    String,
-    Bool,
-    Null
+    NUMBER,
+    STRING,
+    IDENT,
+    TRUE,
+    FALSE,
 }
 
 

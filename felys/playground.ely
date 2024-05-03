@@ -10,6 +10,6 @@ while x == 10 {
     }
 }
 
-greet = 'hello elysia!';
+print 'hello elysia!';
 
 print greet;
