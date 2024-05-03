@@ -153,7 +153,7 @@ impl Lexer<'_> {
         // this decides whether an additive sign is a unary or binary operator
         // type `TT::NULL` is assigned to `prev` when nothing yet in `self.tokens`
         // in other word, this token is the first token of the input
-        let prev = match self.tokens.last() {
+        let prev: TT = match self.tokens.last() {
             Some(tk) => tk.kind,
             None => TT::NULL
         };

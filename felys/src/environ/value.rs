@@ -10,6 +10,10 @@ use crate::core::frontend::{
 };
 
 impl Value {
+    pub fn new(kind: RT, value: String) -> Self {
+        Self { kind, value }
+    }
+
     pub fn from(n: Node) -> Self {
         let kind: RT = match n.kind {
             TT::STRING => RT::STRING,

@@ -23,7 +23,7 @@ impl Statement {
 
     fn _run_print(self, env: &Scope) {
         let result: Value = self.expr.eval(env);
-        println!("{:?}", result);
+        println!("{:?}", result.value);
     }
 
     fn _run_expression(self, env: &Scope) {

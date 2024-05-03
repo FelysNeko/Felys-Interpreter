@@ -1,4 +1,9 @@
-use crate::core::frontend::Node;
+use std::process::exit;
+
+use crate::core::frontend::{
+    TokenType as TT,
+    Node
+};
 use crate::core::runtime::{
     Scope,
     Value
@@ -6,6 +11,13 @@ use crate::core::runtime::{
 
 impl Node {
     pub fn eval(self, env: &Scope) -> Value {
-        Value::from(self)
+        match self.kind {
+            TT::STRING |
+            TT::NUMBER => Value::from(self),
+            _ => {
+                println!("cannot eval [{:?}] operation for now", self.kind);
+                exit(1);
+            }
+        }
     }
 }
