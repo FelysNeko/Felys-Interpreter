@@ -1,16 +1,9 @@
 use std::process::exit;
 
 use crate::core::TokenType as TT;
-use super::Lexer;
-use super::Token;
-
-
-#[derive(Debug)]
-pub struct Node {
-    pub kind: TT,
-    pub value: String,
-    pub branch: Vec<Node>
-}
+use crate::core::Lexer;
+use crate::core::Token;
+use crate::core::Node;
 
 
 impl Lexer<'_> {

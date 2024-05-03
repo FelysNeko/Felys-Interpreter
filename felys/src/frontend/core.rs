@@ -1,6 +1,6 @@
-use super::Statement;
-use super::Program;
-use super::Lexer;
+use crate::core::Statement;
+use crate::core::Program;
+use crate::core::Lexer;
 
 
 impl Lexer<'_> {

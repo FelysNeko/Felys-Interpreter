@@ -1,15 +1,7 @@
 use crate::core::TokenType as TT;
-use super::Lexer;
-use super::Node;
-
-
-#[derive(Debug)]
-pub struct Statement {
-    pub keyword: Option<TT>,
-    pub expr: Option<Node>,
-    pub body: Option<Vec<Statement>>,
-    pub alter: Option<Box<Statement>>
-}
+use crate::core::Lexer;
+use crate::core::Node;
+use crate::core::Statement;
 
 
 impl Lexer<'_> {

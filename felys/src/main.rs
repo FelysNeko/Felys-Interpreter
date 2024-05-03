@@ -3,8 +3,8 @@ mod frontend;
 
 use std::fs;
 
-use frontend::Lexer;
-use frontend::Program;
+use core::Lexer;
+use core::Program;
 
 
 fn main() {

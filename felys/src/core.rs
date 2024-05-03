@@ -1,3 +1,7 @@
+use std::iter::Peekable;
+use std::str::Chars;
+
+
 #[derive(PartialEq, Clone, Copy, Debug)]
 pub enum TokenType {
     NULL,
@@ -40,4 +44,41 @@ pub enum TokenType {
     POS,
     NEG,
     NOT,
+}
+
+
+#[derive(Debug)]
+pub struct Program {
+    pub body: Vec<Statement>
+}
+
+
+#[derive(Debug)]
+pub struct Lexer<'a> {
+    pub iter: Peekable<Chars<'a>>,
+    pub tokens: Vec<Token>
+}
+
+
+#[derive(Debug)]
+pub struct Token {
+    pub kind: TokenType,
+    pub value: String,
+}
+
+
+#[derive(Debug)]
+pub struct Node {
+    pub kind: TokenType,
+    pub value: String,
+    pub branch: Vec<Node>
+}
+
+
+#[derive(Debug)]
+pub struct Statement {
+    pub keyword: Option<TokenType>,
+    pub expr: Option<Node>,
+    pub body: Option<Vec<Statement>>,
+    pub alter: Option<Box<Statement>>
 }
