@@ -11,6 +11,7 @@ impl Lexer<'_> {
         if let Some(tk) = self.tokens.last() {
             let stat: Statement = match tk.kind {
                 TT::WHILE => self._parse_while(),
+                TT::PRINT => self._parse_print(),
                 TT::IF => self._parse_if(),
                 _ => self._parse_expr_to_stat(),
             };
@@ -18,6 +19,13 @@ impl Lexer<'_> {
         } else {
             None
         }
+    }
+
+    fn _parse_print(&mut self) -> Statement {
+        self._must_eat(TT::PRINT);
+        let mut stat: Statement = self._parse_expr_to_stat();
+        stat.keyword = TT::PRINT;
+        stat
     }
 
     fn _parse_while(&mut self) -> Statement {

@@ -19,6 +19,7 @@ pub enum TokenType {
     IF,
     ELIF,
     ELSE,
+    PRINT,
 
     // boolean
     TRUE,

@@ -28,7 +28,7 @@ impl Lexer<'_> {
                 '.' => self._scan_number(),
                 'a'..='z' |
                 'A'..='Z' |
-                '_' => self._scan_ident_and_kw(),
+                '_' => self._scan_ident_and_reserved(),
                 '*' |
                 '/' |
                 '%' => self._scan_simple_binoptr(),
@@ -103,7 +103,7 @@ impl Lexer<'_> {
         Some(token)
     }
 
-    fn _scan_ident_and_kw(&mut self) -> Option<Token> {
+    fn _scan_ident_and_reserved(&mut self) -> Option<Token> {
         let mut token: Token = Token::identifier();
 
         while let Some(ch) = self.iter.peek() {
@@ -127,6 +127,7 @@ impl Lexer<'_> {
             "while" => token.to(TT::WHILE),
             "and" => token.to(TT::AND),
             "or" => token.to(TT::OR),
+            "print" => token.to(TT::PRINT),
             _ => (),
         }
         Some(token)

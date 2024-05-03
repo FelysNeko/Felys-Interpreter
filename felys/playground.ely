@@ -11,3 +11,5 @@ while x == 10 {
 }
 
 greet = 'hello elysia!';
+
+print greet;
