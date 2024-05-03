@@ -1,2 +1,2 @@
 mod environ;
-mod evalutate;
+mod evaluate;

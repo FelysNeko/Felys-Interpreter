@@ -6,14 +6,14 @@ impl Program {
     pub fn run(&self) {
         let global: Scope = Scope::new(None);
         for stat in self.body.iter() {
-            stat.eval();
+            stat.run();
         }
     }
 }
 
 
 impl Statement {
-    fn eval(&self) {
+    fn run(&self) {
 
     }
 }
