@@ -1,5 +1,7 @@
 # Felys-Interpreter
 
+**Update**: I've finished the lexer part, you can use `cargo run` to quickly see the AST of a sample program.
+
 I'm currently re-constructing the interpreter, and the eval part will not be available for a while. However, when everything is ready, the new version will be able to handle basic loops and if statement.
 
 ### Upstream: [Felys-Project](https://github.com/FelysNeko/Felys-Project)
