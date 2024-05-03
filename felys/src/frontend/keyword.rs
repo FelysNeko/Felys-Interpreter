@@ -26,10 +26,10 @@ impl Lexer<'_> {
         let body: Vec<Statement> = self._parse_block();
 
         Statement::new(
-            Some(TT::WHILE),
-            Some(expr),
+            TT::WHILE,
+            expr,
             None,
-            Some(body)
+            body
         )
     }
 
@@ -48,10 +48,10 @@ impl Lexer<'_> {
         };
         
         Statement::new(
-            Some(TT::IF),
-            Some(expr),
+            TT::IF,
+            expr,
             alter,
-            Some(body)
+            body
         )
     }
 
@@ -70,10 +70,10 @@ impl Lexer<'_> {
         };
 
         Statement::new(
-            Some(TT::ELIF),
-            Some(expr),
+            TT::ELIF,
+            expr,
             alter,
-            Some(body)
+            body
         )
     }
 
@@ -82,10 +82,10 @@ impl Lexer<'_> {
         let body: Vec<Statement> = self._parse_block();
 
         Statement::new(
-            Some(TT::ELSE),
-            Some(Node::null()),
+            TT::ELSE,
+            Node::null(),
             None,
-            Some(body)
+            body
         )
     }
 
@@ -94,10 +94,10 @@ impl Lexer<'_> {
         self._must_eat(TT::SEMICOL);
 
         Statement::new(
+            TT::NULL,
+            expr,
             None,
-            Some(expr),
-            None,
-            None
+            Vec::new()
         )
     }
 
@@ -123,10 +123,10 @@ impl Lexer<'_> {
 
 impl Statement {
     pub fn new(
-        keyword: Option<TT>,
-        expr: Option<Node>,
+        keyword: TT,
+        expr: Node,
         alter: Option<Box<Statement>>,
-        body: Option<Vec<Statement>>
+        body: Vec<Statement>
     ) -> Self {
         Self { keyword, expr, alter, body }
     }

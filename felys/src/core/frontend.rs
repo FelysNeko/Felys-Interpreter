@@ -71,8 +71,8 @@ pub struct Node {
 
 #[derive(Debug)]
 pub struct Statement {
-    pub keyword: Option<TokenType>,
-    pub expr: Option<Node>,
-    pub body: Option<Vec<Statement>>,
+    pub keyword: TokenType,
+    pub expr: Node,
+    pub body: Vec<Statement>,
     pub alter: Option<Box<Statement>>
 }

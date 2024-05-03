@@ -20,5 +20,5 @@ pub struct Value {
 #[derive(Debug)]
 pub struct Scope {
     pub variable: HashMap<String, Value>,
-    pub parent: Box<Scope>
+    pub parent: Option<Box<Scope>>
 }
