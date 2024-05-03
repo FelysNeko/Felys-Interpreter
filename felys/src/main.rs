@@ -1,9 +1,10 @@
 mod core;
 mod frontend;
+mod runtime;
 
 use std::fs;
 
-use core::Lexer;
+use core::frontend::Lexer;
 use core::Program;
 
 

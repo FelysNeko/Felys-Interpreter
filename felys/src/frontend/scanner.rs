@@ -1,8 +1,10 @@
 use std::process::exit;
 
-use crate::core::Lexer;
-use crate::core::Token;
-use crate::core::TokenType as TT;
+use crate::core::frontend::{
+    TokenType as TT,
+    Lexer,
+    Token
+};
 
 
 impl Lexer<'_> {

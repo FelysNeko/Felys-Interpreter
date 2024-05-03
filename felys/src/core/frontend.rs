@@ -48,12 +48,6 @@ pub enum TokenType {
 
 
 #[derive(Debug)]
-pub struct Program {
-    pub body: Vec<Statement>
-}
-
-
-#[derive(Debug)]
 pub struct Lexer<'a> {
     pub iter: Peekable<Chars<'a>>,
     pub tokens: Vec<Token>

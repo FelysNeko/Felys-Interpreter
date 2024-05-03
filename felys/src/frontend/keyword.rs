@@ -1,7 +1,9 @@
-use crate::core::TokenType as TT;
-use crate::core::Lexer;
-use crate::core::Node;
-use crate::core::Statement;
+use crate::core::frontend::{
+    TokenType as TT,
+    Statement,
+    Lexer,
+    Node
+};
 
 
 impl Lexer<'_> {

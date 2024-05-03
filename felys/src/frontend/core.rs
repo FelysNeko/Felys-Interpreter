@@ -1,6 +1,8 @@
-use crate::core::Statement;
 use crate::core::Program;
-use crate::core::Lexer;
+use crate::core::frontend::{
+    Statement,
+    Lexer
+};
 
 
 impl Lexer<'_> {
