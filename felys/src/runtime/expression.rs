@@ -1,5 +1,3 @@
-use std::process::exit;
-
 use crate::core::Error;
 use crate::core::frontend::{
     TokenType as TT,
@@ -21,37 +19,28 @@ impl Node {
             TT::IDENT => env.get(&self.value),
             TT::BINOPTR => self._eval_binoptr(env),
             TT::UNAOPTR => self._eval_unaoptr(env),
-            _ => {
-                println!("cannot eval [{:?}] operation for now", self.kind);
-                exit(1);
-            }
+            _ => Error::cannot_eval_token(&self.value)
         }
     }
 
     fn _eval_unaoptr(&mut self, env: &mut Scope) -> Result<Value, Error> {
         let val: Value = match self.branch.first_mut() {
             Some(node) => node.eval(env)?,
-            None => exit(1)
+            None => Error::node_branches_missing(&self.value)?
         };
 
         match self.value.as_str() {
             "+" => val._pos(),
             "-" => val._neg(),
             "!" => val._not(),
-            _ => {
-                println!("operator [{}] not impl", self.value);
-                exit(1)
-            }
+            _ => Error::unaoptr_not_impl(&self.value)
         }
     }
 
     fn _eval_binoptr(&mut self, env: &mut Scope) -> Result<Value, Error> {
         let rval: Value = match self.branch.last_mut() {
             Some(node) => node.eval(env)?,
-            None => {
-                println!("right value not shown up");
-                exit(1);
-            }
+            None => Error::node_branches_missing(&self.value)?
         };
 
         let lval: Value = match self.branch.first_mut() {
@@ -60,16 +49,12 @@ impl Node {
                     env.set(&node.value, &rval);
                     return Ok(rval);
                 } else {
-                    println!("cannot assign to [{:?}]", node.kind);
-                    exit(1)
+                    Error::cannot_assign(&self.value)?
                 }
             } else {
                 node.eval(env)?
             },
-            None => {
-                println!("left value not shown up");
-                exit(1)
-            }
+            None => Error::node_branches_missing(&self.value)?
         };
 
         match self.value.as_str() {
@@ -86,10 +71,7 @@ impl Node {
             "<=" => lval._seq(rval),
             "and" => lval._and(rval),
             "or" => lval._or(rval),
-            _ => {
-                println!("operator [{}] not impl", self.value);
-                exit(1)
-            }
+            _ => Error::binoptr_not_impl(&self.value)
         }
     }
 }
@@ -100,14 +82,10 @@ impl Value {
         if self.kind == RT::NUMBER {
             match self.value.parse::<f64>() {
                 Ok(num) => Ok(num),
-                Err(_) => {
-                    println!("cannot parse number [{}]", self.value);
-                    exit(1);
-                }
+                Err(_) => Error::cannot_parse_number(&self.value)
             }
         } else {
-            println!("cannot parse number [{}]", self.value);
-            exit(1)
+            Error::cannot_parse_number(&self.value)
         }
     }
 
@@ -116,10 +94,7 @@ impl Value {
             RT::BOOLEAN => Ok(if self.value.as_str() == "true" { true } else { false }),
             RT::STRING => Ok(self.value.len() != 0),
             RT::NUMBER => Ok(self._parse_to_f64()? != 0.0),
-            _ => {
-                println!("cannot parse bool [{}]", self.value);
-                exit(1)
-            }
+            _ => Error::cannot_parse_bool(&self.value)
         }
     }
 
@@ -209,5 +184,50 @@ impl Value {
     fn _not(&self) -> Result<Value, Error> {
         let val: bool = !self._parse_to_bool()?;
         Value::new(RT::BOOLEAN, val.to_string())
+    }
+}
+
+
+impl Error {
+    fn cannot_parse_number(value: &String) -> Result<f64, Error> {
+        Err(Self {
+            msg: format!("Error: cannot parse `{}` to number", value)
+        })
+    }
+
+    fn cannot_parse_bool(value: &String) -> Result<bool, Error> {
+        Err(Self {
+            msg: format!("Error: cannot parse `{}` to bool", value)
+        })
+    }
+
+    fn node_branches_missing(value: &String) -> Result<Value, Error> {
+        Err(Self {
+            msg: format!("Error: node `{}` misses required branches", value)
+        })
+    }
+
+    fn unaoptr_not_impl(value: &String) -> Result<Value, Error> {
+        Err(Self {
+            msg: format!("Error: unary operator `{}` is not supported", value)
+        })
+    }
+
+    fn binoptr_not_impl(value: &String) -> Result<Value, Error> {
+        Err(Self {
+            msg: format!("Error: binary operator `{}` is not supported", value)
+        })
+    }
+
+    fn cannot_eval_token(value: &String) -> Result<Value, Error> {
+        Err(Self {
+            msg: format!("Error: token `{}` is not supported", value)
+        })
+    }
+
+    fn cannot_assign(value: &String) -> Result<Value, Error> {
+        Err(Self {
+            msg: format!("Error: cannot assign to token `{}`", value)
+        })
     }
 }

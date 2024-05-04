@@ -2,7 +2,6 @@ mod core;
 mod environ;
 mod frontend;
 mod runtime;
-mod error;
 
 use std::fs;
 

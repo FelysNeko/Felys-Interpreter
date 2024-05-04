@@ -12,9 +12,7 @@ impl Program {
         let mut global: Scope = Scope::init();
         let mut output: Output = Output::new();
         for mut stat in self.body {
-            if let Some(e) = stat.run(&mut global, &mut output).err() {
-                return Err(e);
-            };
+            stat.run(&mut global, &mut output)?;
         }
         output.render();
         Ok(output)

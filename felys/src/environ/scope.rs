@@ -45,3 +45,12 @@ impl Scope {
         self.data.pop();
     }
 }
+
+
+impl Error {
+    fn var_not_exist(name: &String) -> Result<Value, Error> {
+        Err(Self {
+            msg: format!("Error: `{}` does not exist", name)
+        })
+    }
+}
