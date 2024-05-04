@@ -46,7 +46,7 @@ impl Node {
         let lval: Value = match self.branch.first_mut() {
             Some(node) => if self.value.as_str() == "=" {
                 if node.kind == TT::IDENT {
-                    env.set(&node.value, &rval);
+                    env.set(&node.value, &rval)?;
                     return Ok(rval);
                 } else {
                     Error::cannot_assign(&self.value)?

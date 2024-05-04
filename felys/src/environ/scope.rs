@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::process::exit;
 
 use crate::core::Error;
 use crate::core::runtime::{
@@ -12,19 +11,19 @@ impl Scope {
         Self { data: vec![HashMap::new()] }
     }
 
-    pub fn set(&mut self, name: &String, val: &Value) {
+    pub fn set(&mut self, name: &String, val: &Value) -> Result<(), Error> {
         for scope in self.data.iter_mut().rev() {
             if scope.contains_key(name) {
                 scope.insert(name.clone(), val.clone());
-                return;
+                return Ok(());
             }
         }
 
         if let Some(scope) = self.data.last_mut() {
             scope.insert(name.clone(), val.clone());
+            Ok(())
         } else {
-            println!("no scope exists");
-            exit(1);
+            Error::no_scope_exist()
         }
     }
 
@@ -51,6 +50,12 @@ impl Error {
     fn var_not_exist(name: &String) -> Result<Value, Error> {
         Err(Self {
             msg: format!("Error: `{}` does not exist", name)
+        })
+    }
+
+    fn no_scope_exist() -> Result<(), Error> {
+        Err(Self {
+            msg: format!("no scope exist")
         })
     }
 }
