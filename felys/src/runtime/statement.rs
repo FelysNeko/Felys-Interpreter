@@ -14,6 +14,9 @@ impl Statement {
         match self.keyword {
             TT::PRINT => self._run_print(env),
             TT::WHILE => self._run_while(env),
+            TT::IF => self._run_if(env),
+            TT::ELIF => self._run_elif(env),
+            TT::ELSE => self._run_else(env),
             TT::NULL => self._run_expression(env),
             _ => {
                 println!("keyword [{:?}] not impl", self.keyword);
@@ -28,6 +31,26 @@ impl Statement {
             stat.run(env);
         }
         env.shrink();
+    }
+
+    fn _run_else(&mut self, env: &mut Scope) {
+        self._run_block(env);
+    }
+
+    fn _run_elif(&mut self, env: &mut Scope) {
+        if self.expr.eval(env)._parse_to_bool() {
+            self._run_block(env);
+        } else if let Some(stat) = self.alter.as_mut() {
+            stat.run(env);
+        }
+    }
+
+    fn _run_if(&mut self, env: &mut Scope) {
+        if self.expr.eval(env)._parse_to_bool() {
+            self._run_block(env);
+        } else if let Some(stat) = self.alter.as_mut() {
+            stat.run(env);
+        }
     }
 
     fn _run_while(&mut self, env: &mut Scope) {

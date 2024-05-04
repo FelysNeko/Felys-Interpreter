@@ -28,8 +28,8 @@ impl Node {
     }
 
     fn _eval_unaoptr(&mut self, env: &mut Scope) -> Value {
-        let val: Value = match self.branch.pop() {
-            Some(mut node) => node.eval(env),
+        let val: Value = match self.branch.first_mut() {
+            Some(node) => node.eval(env),
             None => exit(1)
         };
 
