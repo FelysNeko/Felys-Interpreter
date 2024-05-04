@@ -1,12 +1,15 @@
-x = 12;
-print x;
+x = 10;
 
 if x == 1 {
-    print 2;
+    print 'foo';
 } elif x == 10 {
-    print 2;
+    while x > 0 {
+        print x;
+        x = x - 1;
+    }
 } else {
-    print 3;
+    print 42;
 }
 
-print 'elysia is my waifu';
+print 'Elysia is my waifu!';
+print '我永远单推爱莉！';
