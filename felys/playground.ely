@@ -12,4 +12,4 @@ while x == 10 {
 
 print 'hello elysia!';
 
-print not false;
+print 1=1;

@@ -10,7 +10,7 @@ use crate::core::runtime::{
 };
 
 impl Statement {
-    pub fn run(self, env: &Scope) {
+    pub fn run(self, env: &mut Scope) {
         match self.keyword {
             TT::PRINT => self._run_print(env),
             TT::NULL => self._run_expression(env),
@@ -21,12 +21,12 @@ impl Statement {
         }
     }
 
-    fn _run_print(self, env: &Scope) {
+    fn _run_print(self, env: &mut Scope) {
         let result: Value = self.expr.eval(env);
         println!("{:?}", result.value);
     }
 
-    fn _run_expression(self, env: &Scope) {
+    fn _run_expression(self, env: &mut Scope) {
         self.expr.eval(env);
     }
 }

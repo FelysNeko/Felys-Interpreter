@@ -3,9 +3,9 @@ use crate::core::runtime::Scope;
 
 impl Program {
     pub fn run(self) {
-        let global: Scope = Scope::new(None);
+        let mut global: Scope = Scope::new();
         for stat in self.body {
-            stat.run(&global);
+            stat.run(&mut global);
         }
     }
 }

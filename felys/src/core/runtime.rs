@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Clone, Debug)]
 pub enum RuntimeType {
     NUMBER,
     STRING,
@@ -10,7 +10,7 @@ pub enum RuntimeType {
 }
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Value {
     pub kind: RuntimeType,
     pub value: String

@@ -12,11 +12,12 @@ use crate::core::runtime::{
 
 
 impl Node {
-    pub fn eval(self, env: &Scope) -> Value {
+    pub fn eval(self, env: &mut Scope) -> Value {
         match self.kind {
             TT::STRING |
             TT::NUMBER |
             TT::BOOLEAN => Value::from(self),
+            TT::IDENT => env.get(self.value),
             TT::BINOPTR => self._eval_binoptr(env),
             TT::UNAOPTR => self._eval_unaoptr(env),
             _ => {
@@ -26,7 +27,7 @@ impl Node {
         }
     }
 
-    fn _eval_unaoptr(mut self, env: &Scope) -> Value {
+    fn _eval_unaoptr(mut self, env: &mut Scope) -> Value {
         let val: Value = match self.branch.pop() {
             Some(node) => node.eval(env),
             None => exit(1)
@@ -43,14 +44,24 @@ impl Node {
         }
     }
 
-    fn _eval_binoptr(mut self, env: &Scope) -> Value {
+    fn _eval_binoptr(mut self, env: &mut Scope) -> Value {
         let rval: Value = match self.branch.pop() {
             Some(node) => node.eval(env),
             None => exit(1)
         };
 
         let lval: Value = match self.branch.pop() {
-            Some(node) => node.eval(env),
+            Some(node) => if self.value.as_str() == "=" {
+                if node.kind == TT::IDENT {
+                    env.set(node.value, rval.clone());
+                    return rval;
+                } else {
+                    println!("cannot assign to [{:?}]", node.kind);
+                    exit(1)
+                }
+            } else {
+                node.eval(env)
+            },
             None => exit(1)
         };
 
