@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::process::exit;
 
+use crate::core::Error;
 use crate::core::runtime::{
     Scope,
     Value
@@ -27,14 +28,13 @@ impl Scope {
         }
     }
 
-    pub fn get(&mut self, name: &String) -> Value {
+    pub fn get(&mut self, name: &String) -> Result<Value, Error> {
         for scope in self.data.iter().rev() {
             if let Some(val) = scope.get(name) {
-                return val.clone();
+                return Ok(val.clone());
             }
         }
-        println!("no var called [{}]", name);
-        exit(1);
+        Error::var_not_exist(name)
     }
 
     pub fn extend(&mut self) {

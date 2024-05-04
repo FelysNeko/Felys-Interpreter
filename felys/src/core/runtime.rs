@@ -21,3 +21,8 @@ pub struct Value {
 pub struct Scope {
     pub data: Vec<HashMap<String, Value>>,
 }
+
+#[derive(Debug)]
+pub struct Output {
+    pub body: Vec<String>
+}

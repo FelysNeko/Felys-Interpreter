@@ -1,5 +1,4 @@
-use std::process::exit;
-
+use crate::core::Error;
 use crate::core::runtime::{
     RuntimeType as RT,
     Value
@@ -10,21 +9,18 @@ use crate::core::frontend::{
 };
 
 impl Value {
-    pub fn new(kind: RT, value: String) -> Self {
-        Self { kind, value }
+    pub fn new(kind: RT, value: String) -> Result<Self, Error> {
+        Ok(Self { kind, value })
     }
 
-    pub fn from(n: &Node) -> Self {
+    pub fn from(n: &Node) -> Result<Self, Error> {
         let kind: RT = match n.kind {
             TT::STRING => RT::STRING,
             TT::NUMBER => RT::NUMBER,
             TT::IDENT => RT::IDENT,
             TT::BOOLEAN => RT::BOOLEAN,
-            _ => {
-                println!("cannot convert [{:?}] to runtime type", n.kind);
-                exit(1)
-            }
+            _ => return Error::cvt_to_rt_failed(&n.value)
         };
-        Self { kind, value: n.value.clone() }
+        Ok(Self { kind, value: n.value.clone() })
     }
 }

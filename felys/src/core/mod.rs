@@ -8,3 +8,8 @@ use self::frontend::Statement;
 pub struct Program {
     pub body: Vec<Statement>
 }
+
+#[derive(Debug)]
+pub struct Error {
+    pub msg: String
+}

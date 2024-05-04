@@ -1,5 +1,6 @@
 use std::process::exit;
 
+use crate::core::Error;
 use crate::core::frontend::{
     TokenType as TT,
     Node
@@ -12,7 +13,7 @@ use crate::core::runtime::{
 
 
 impl Node {
-    pub fn eval(&mut self, env: &mut Scope) -> Value {
+    pub fn eval(&mut self, env: &mut Scope) -> Result<Value, Error> {
         match self.kind {
             TT::STRING |
             TT::NUMBER |
@@ -27,9 +28,9 @@ impl Node {
         }
     }
 
-    fn _eval_unaoptr(&mut self, env: &mut Scope) -> Value {
+    fn _eval_unaoptr(&mut self, env: &mut Scope) -> Result<Value, Error> {
         let val: Value = match self.branch.first_mut() {
-            Some(node) => node.eval(env),
+            Some(node) => node.eval(env)?,
             None => exit(1)
         };
 
@@ -44,9 +45,9 @@ impl Node {
         }
     }
 
-    fn _eval_binoptr(&mut self, env: &mut Scope) -> Value {
+    fn _eval_binoptr(&mut self, env: &mut Scope) -> Result<Value, Error> {
         let rval: Value = match self.branch.last_mut() {
-            Some(node) => node.eval(env),
+            Some(node) => node.eval(env)?,
             None => {
                 println!("right value not shown up");
                 exit(1);
@@ -57,13 +58,13 @@ impl Node {
             Some(node) => if self.value.as_str() == "=" {
                 if node.kind == TT::IDENT {
                     env.set(&node.value, &rval);
-                    return rval;
+                    return Ok(rval);
                 } else {
                     println!("cannot assign to [{:?}]", node.kind);
                     exit(1)
                 }
             } else {
-                node.eval(env)
+                node.eval(env)?
             },
             None => {
                 println!("left value not shown up");
@@ -95,10 +96,10 @@ impl Node {
 
 
 impl Value {
-    fn _parse_to_f64(&self) -> f64 {
+    fn _parse_to_f64(&self) -> Result<f64, Error> {
         if self.kind == RT::NUMBER {
             match self.value.parse::<f64>() {
-                Ok(num) => num,
+                Ok(num) => Ok(num),
                 Err(_) => {
                     println!("cannot parse number [{}]", self.value);
                     exit(1);
@@ -110,11 +111,11 @@ impl Value {
         }
     }
 
-    pub fn _parse_to_bool(&self) -> bool {
+    pub fn _parse_to_bool(&self) -> Result<bool, Error> {
         match self.kind {
-            RT::BOOLEAN => if self.value.as_str() == "true" { true } else { false },
-            RT::STRING => self.value.len() != 0,
-            RT::NUMBER => self._parse_to_f64() != 0.0,
+            RT::BOOLEAN => Ok(if self.value.as_str() == "true" { true } else { false }),
+            RT::STRING => Ok(self.value.len() != 0),
+            RT::NUMBER => Ok(self._parse_to_f64()? != 0.0),
             _ => {
                 println!("cannot parse bool [{}]", self.value);
                 exit(1)
@@ -122,91 +123,91 @@ impl Value {
         }
     }
 
-    fn _add(&self, rval: Value) -> Value {
-        let val: f64 = self._parse_to_f64() + rval._parse_to_f64();
+    fn _add(&self, rval: Value) -> Result<Value, Error> {
+        let val: f64 = self._parse_to_f64()? + rval._parse_to_f64()?;
         Value::new(RT::NUMBER, val.to_string())
     }
 
-    fn _sub(&self, rval: Value) -> Value {
-        let val: f64 = self._parse_to_f64() - rval._parse_to_f64();
+    fn _sub(&self, rval: Value) -> Result<Value, Error> {
+        let val: f64 = self._parse_to_f64()? - rval._parse_to_f64()?;
         Value::new(RT::NUMBER, val.to_string())
     }
 
-    fn _mul(&self, rval: Value) -> Value {
-        let val: f64 = self._parse_to_f64() * rval._parse_to_f64();
+    fn _mul(&self, rval: Value) -> Result<Value, Error> {
+        let val: f64 = self._parse_to_f64()? * rval._parse_to_f64()?;
         Value::new(RT::NUMBER, val.to_string())
     }
 
-    fn _div(&self, rval: Value) -> Value {
-        let val: f64 = self._parse_to_f64() / rval._parse_to_f64();
+    fn _div(&self, rval: Value) -> Result<Value, Error> {
+        let val: f64 = self._parse_to_f64()? / rval._parse_to_f64()?;
         Value::new(RT::NUMBER, val.to_string())
     }
 
-    fn _mod(&self, rval: Value) -> Value {
-        let val: f64 = self._parse_to_f64() % rval._parse_to_f64();
+    fn _mod(&self, rval: Value) -> Result<Value, Error> {
+        let val: f64 = self._parse_to_f64()? % rval._parse_to_f64()?;
         Value::new(RT::NUMBER, val.to_string())
     }
 
-    fn _eq(&self, rval: Value) -> Value {
+    fn _eq(&self, rval: Value) -> Result<Value, Error> {
         let val: bool = self.value == rval.value;
         Value::new(RT::BOOLEAN, val.to_string())
     }
 
-    fn _ne(&self, rval: Value) -> Value {
+    fn _ne(&self, rval: Value) -> Result<Value, Error> {
         let val: bool = self.value != rval.value;
         Value::new(RT::BOOLEAN, val.to_string())
     }
 
-    fn _lgr(&self, rval: Value) -> Value {
-        let val: bool = self._parse_to_f64() > rval._parse_to_f64();
+    fn _lgr(&self, rval: Value) -> Result<Value, Error> {
+        let val: bool = self._parse_to_f64()? > rval._parse_to_f64()?;
         Value::new(RT::BOOLEAN, val.to_string())
     }
 
-    fn _leq(&self, rval: Value) -> Value {
-        let val: bool = self._parse_to_f64() >= rval._parse_to_f64();
+    fn _leq(&self, rval: Value) -> Result<Value, Error> {
+        let val: bool = self._parse_to_f64()? >= rval._parse_to_f64()?;
         Value::new(RT::BOOLEAN, val.to_string())
     }
 
-    fn _smr(&self, rval: Value) -> Value {
-        let val: bool = self._parse_to_f64() < rval._parse_to_f64();
+    fn _smr(&self, rval: Value) -> Result<Value, Error> {
+        let val: bool = self._parse_to_f64()? < rval._parse_to_f64()?;
         Value::new(RT::BOOLEAN, val.to_string())
     }
 
-    fn _seq(&self, rval: Value) -> Value {
-        let val: bool = self._parse_to_f64() <= rval._parse_to_f64();
+    fn _seq(&self, rval: Value) -> Result<Value, Error> {
+        let val: bool = self._parse_to_f64()? <= rval._parse_to_f64()?;
         Value::new(RT::BOOLEAN, val.to_string())
     }
 
-    fn  _and(&self, rval: Value) -> Value {
-        if self._parse_to_bool() && rval._parse_to_bool() {
-            rval
+    fn  _and(&self, rval: Value) -> Result<Value, Error> {
+        if self._parse_to_bool()? && rval._parse_to_bool()? {
+            Ok(rval)
         } else {
             Value::new(RT::BOOLEAN, false.to_string())
         }
     }
 
-    fn _or(&self, rval: Value) -> Value {
-        if self._parse_to_bool() {
-            self.clone()
-        } else if self._parse_to_bool() {
-            rval
+    fn _or(&self, rval: Value) -> Result<Value, Error> {
+        if self._parse_to_bool()? {
+            Ok(self.clone())
+        } else if self._parse_to_bool()? {
+            Ok(rval)
         } else {
             Value::new(RT::BOOLEAN, false.to_string())
         }
     }
 
-    fn _pos(&self) -> Value {
-        let val: f64 = self._parse_to_f64();
+    fn _pos(&self) -> Result<Value, Error> {
+        let val: f64 = self._parse_to_f64()?;
         Value::new(RT::NUMBER, val.to_string())
     }
 
-    fn _neg(&self) -> Value {
-        let val: f64 = -self._parse_to_f64();
+    fn _neg(&self) -> Result<Value, Error> {
+        let val: f64 = -self._parse_to_f64()?;
         Value::new(RT::NUMBER, val.to_string())
     }
 
-    fn _not(&self) -> Value {
-        let val: bool = !self._parse_to_bool();
+    fn _not(&self) -> Result<Value, Error> {
+        let val: bool = !self._parse_to_bool()?;
         Value::new(RT::BOOLEAN, val.to_string())
     }
 }
