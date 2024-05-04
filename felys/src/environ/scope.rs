@@ -1,23 +1,40 @@
-use std::{collections::HashMap, process::exit};
+use std::collections::HashMap;
+use std::process::exit;
 
-use crate::core::runtime::{Scope, Value};
+use crate::core::runtime::{
+    Scope,
+    Value
+};
 
 impl Scope {
-    pub fn new() -> Self {
-        Self { variable: HashMap::new(), parent: None }
+    pub fn init() -> Self {
+        Self { data: vec![HashMap::new()] }
     }
 
     pub fn set(&mut self, name: String, val: Value) {
-        self.variable.insert(name, val);
+        if let Some(scope) = self.data.last_mut() {
+            scope.insert(name, val);
+        } else {
+            println!("no scope exists");
+            exit(1);
+        }
     }
 
     pub fn get(&mut self, name: String) -> Value {
-        match self.variable.get(&name) {
-            Some(val) => val.clone(),
-            None => {
-                println!("no var called [{}]", name);
-                exit(1)
+        for scope in self.data.iter().rev() {
+            if let Some(val) = scope.get(&name) {
+                return val.clone();
             }
         }
+        println!("no var called [{}]", name);
+        exit(1);
+    }
+
+    pub fn extend(&mut self) {
+        self.data.push(HashMap::new());
+    }
+
+    pub fn shrink(&mut self) {
+        self.data.pop();
     }
 }
