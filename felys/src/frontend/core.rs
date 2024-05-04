@@ -1,4 +1,7 @@
-use crate::core::Program;
+use crate::core::{
+    Program,
+    Error
+};
 use crate::core::frontend::{
     Statement,
     Lexer
@@ -6,7 +9,7 @@ use crate::core::frontend::{
 
 
 impl Lexer<'_> {
-    pub fn parse(input: String) -> Program {
+    pub fn parse(input: String) -> Result<Program, Error> {
         let mut lxr: Lexer<'_> = Lexer {
             iter: input.chars().peekable(),
             tokens: Vec::new()
@@ -22,10 +25,10 @@ impl Lexer<'_> {
         lxr.tokens.reverse();
 
         let mut main: Program = Program::new();
-        while let Some(stat) = lxr.parse_next() {
+        while let Some(stat) = lxr.parse_next()? {
             main.push(stat);
         }
-        main
+        Ok(main)
     }
 }
 
