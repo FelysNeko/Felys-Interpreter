@@ -9,7 +9,7 @@ use crate::core::frontend::{
 
 impl Lexer<'_> {
     pub(super) fn parse_next(&mut self) -> Result<Option<Statement>, Error> {
-        let next = if let Some(tk) = self.tokens.last() {
+        let next: Option<Statement> = if let Some(tk) = self.tokens.last() {
             let stat: Statement = match tk.kind {
                 TT::WHILE => self._parse_while()?,
                 TT::PRINT => self._parse_print()?,

@@ -15,7 +15,7 @@ impl Lexer<'_> {
             tokens: Vec::new()
         };
 
-        while let Some(tk) = lxr.scan_next() {
+        while let Some(tk) = lxr.scan_next()? {
             lxr.tokens.push(tk);
         };
 
