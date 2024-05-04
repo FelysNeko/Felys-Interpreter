@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub enum RuntimeType {
     NUMBER,
     STRING,
