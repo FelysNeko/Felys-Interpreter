@@ -77,7 +77,7 @@ impl Statement {
 impl Error {
     fn keyword_not_impl(kind: TT) -> Result<(), Error> {
         Err(Self {
-            msg: format!("Error: keyword `{:?}` is not supported", kind)
+            msg: format!("keyword `{:?}` is not supported", kind)
         })
     }
 }

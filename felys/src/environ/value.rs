@@ -28,7 +28,7 @@ impl Value {
 impl Error {
     fn cvt_to_rt_failed(name: &String) -> Result<Value, Error> {
         Err(Self {
-            msg: format!("Error: cannot convert `{}` to runtime type", name)
+            msg: format!("cannot convert `{}` to runtime type", name)
         })
     }
 }

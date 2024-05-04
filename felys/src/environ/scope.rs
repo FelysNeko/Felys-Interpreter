@@ -49,7 +49,7 @@ impl Scope {
 impl Error {
     fn var_not_exist(name: &String) -> Result<Value, Error> {
         Err(Self {
-            msg: format!("Error: `{}` does not exist", name)
+            msg: format!("`{}` does not exist", name)
         })
     }
 

@@ -191,43 +191,43 @@ impl Value {
 impl Error {
     fn cannot_parse_number(value: &String) -> Result<f64, Error> {
         Err(Self {
-            msg: format!("Error: cannot parse `{}` to number", value)
+            msg: format!("cannot parse `{}` to number", value)
         })
     }
 
     fn cannot_parse_bool(value: &String) -> Result<bool, Error> {
         Err(Self {
-            msg: format!("Error: cannot parse `{}` to bool", value)
+            msg: format!("cannot parse `{}` to bool", value)
         })
     }
 
     fn node_branches_missing(value: &String) -> Result<Value, Error> {
         Err(Self {
-            msg: format!("Error: node `{}` misses required branches", value)
+            msg: format!("node `{}` misses required branches", value)
         })
     }
 
     fn unaoptr_not_impl(value: &String) -> Result<Value, Error> {
         Err(Self {
-            msg: format!("Error: unary operator `{}` is not supported", value)
+            msg: format!("unary operator `{}` is not supported", value)
         })
     }
 
     fn binoptr_not_impl(value: &String) -> Result<Value, Error> {
         Err(Self {
-            msg: format!("Error: binary operator `{}` is not supported", value)
+            msg: format!("binary operator `{}` is not supported", value)
         })
     }
 
     fn cannot_eval_token(value: &String) -> Result<Value, Error> {
         Err(Self {
-            msg: format!("Error: token `{}` is not supported", value)
+            msg: format!("token `{}` is not supported", value)
         })
     }
 
     fn cannot_assign(value: &String) -> Result<Value, Error> {
         Err(Self {
-            msg: format!("Error: cannot assign to token `{}`", value)
+            msg: format!("cannot assign to token `{}`", value)
         })
     }
 }
