@@ -1,15 +1,6 @@
-while x == 10 {
-    y = 1;
-    if y == 10 {
-        y = 1;
-        x = 1;
-    } elif x == 0 {
-        z = 10;
-    } else {
-        z = 0;
-    }
+x = 0;
+
+while x < 10 {
+    x = x+1;
+    print 'elysia is my waifu';
 }
-
-print 'hello elysia!';
-
-print 1=1;

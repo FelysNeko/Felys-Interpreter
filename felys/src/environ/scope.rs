@@ -11,18 +11,25 @@ impl Scope {
         Self { data: vec![HashMap::new()] }
     }
 
-    pub fn set(&mut self, name: String, val: Value) {
+    pub fn set(&mut self, name: &String, val: &Value) {
+        for scope in self.data.iter_mut().rev() {
+            if scope.contains_key(name) {
+                scope.insert(name.clone(), val.clone());
+                return;
+            }
+        }
+
         if let Some(scope) = self.data.last_mut() {
-            scope.insert(name, val);
+            scope.insert(name.clone(), val.clone());
         } else {
             println!("no scope exists");
             exit(1);
         }
     }
 
-    pub fn get(&mut self, name: String) -> Value {
+    pub fn get(&mut self, name: &String) -> Value {
         for scope in self.data.iter().rev() {
-            if let Some(val) = scope.get(&name) {
+            if let Some(val) = scope.get(name) {
                 return val.clone();
             }
         }

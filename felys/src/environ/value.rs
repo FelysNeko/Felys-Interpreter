@@ -14,7 +14,7 @@ impl Value {
         Self { kind, value }
     }
 
-    pub fn from(n: Node) -> Self {
+    pub fn from(n: &Node) -> Self {
         let kind: RT = match n.kind {
             TT::STRING => RT::STRING,
             TT::NUMBER => RT::NUMBER,
@@ -25,6 +25,6 @@ impl Value {
                 exit(1)
             }
         };
-        Self { kind, value: n.value }
+        Self { kind, value: n.value.clone() }
     }
 }
