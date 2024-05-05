@@ -10,7 +10,7 @@ impl Lexer<'_> {
     pub(super) fn scan_next(&mut self) -> Result<Option<Token>, Error> {
         // eat spaces
         while let Some(ch) = self.iter.peek() {
-            if *ch == ' ' || *ch == '\n' {
+            if *ch == ' ' || *ch == '\n' || *ch == '\r' {
                 self.iter.next();
             } else {
                 break;

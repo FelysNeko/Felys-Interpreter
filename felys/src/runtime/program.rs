@@ -14,7 +14,6 @@ impl Program {
         for mut stat in self.body {
             stat.run(&mut global, &mut output)?;
         }
-        output.render();
         Ok(output)
     }
 }
@@ -29,7 +28,7 @@ impl Output {
         self.body.push(value)
     }
 
-    pub fn render(&self) {
-        println!("{:#?}", self);
+    pub fn render(&self) -> String {
+        return self.body.join("\n")
     }
 }
