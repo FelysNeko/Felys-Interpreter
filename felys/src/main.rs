@@ -17,7 +17,7 @@ fn main() {
     let main: Program = match Lexer::parse(file) {
         Ok(p) => p,
         Err(e) => {
-            println!("{:?}", e);
+            println!("SyntaxError: {}", e.render());
             exit(1);
         }
     };
@@ -25,7 +25,7 @@ fn main() {
     let out: Output = match main.run() {
         Ok(r) => r,
         Err(e) => {
-            println!("{:?}", e);
+            println!("RuntimeError: {}", e.render());
             exit(1);
         }
     };

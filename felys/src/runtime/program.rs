@@ -32,3 +32,10 @@ impl Output {
         return self.body.join("\n")
     }
 }
+
+
+impl Error {
+    pub fn render(&self) -> String {
+        return self.msg.clone()
+    }
+}
