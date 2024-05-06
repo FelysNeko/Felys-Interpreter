@@ -99,8 +99,12 @@ impl Value {
     }
 
     fn _add(&self, rval: Value) -> Result<Value, Error> {
-        let val: f64 = self._parse_to_f64()? + rval._parse_to_f64()?;
-        Value::new(RT::NUMBER, val.to_string())
+        let val: String = match (&self.kind, &rval.kind) {
+            (RT::STRING, _) |
+            (_, RT::STRING) => self.value.clone() + &rval.value.clone(),
+            _ => (self._parse_to_f64()? + rval._parse_to_f64()?).to_string()
+        };
+        Value::new(RT::NUMBER, val)
     }
 
     fn _sub(&self, rval: Value) -> Result<Value, Error> {

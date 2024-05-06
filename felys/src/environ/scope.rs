@@ -2,13 +2,23 @@ use std::collections::HashMap;
 
 use crate::core::Error;
 use crate::core::runtime::{
+    RuntimeType as RT,
     Scope,
     Value
 };
 
 impl Scope {
     pub fn init() -> Self {
-        Self { data: vec![HashMap::new()] }
+        let mut env: HashMap<String, Value> = HashMap::new();
+        env.insert(
+            "elysia".to_string(),
+            Value { kind:RT::STRING, value:"粉色妖精小姐♪".to_string() }
+        );
+        env.insert(
+            "ELYSIA".to_string(),
+            Value { kind:RT::STRING, value:"「真我·人之律者」".to_string() }
+        );
+        Self { data: vec![env] }
     }
 
     pub fn set(&mut self, name: &String, val: &Value) -> Result<(), Error> {
