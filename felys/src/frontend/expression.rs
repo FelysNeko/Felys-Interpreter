@@ -123,13 +123,14 @@ impl Lexer<'_> {
     }
 
     fn _parse_primary(&mut self) -> Result<Node, Error> {
-        if let Some(tk) = self.tokens.pop() {
+        if let Some(tk) = self.tokens.last() {
             match tk.kind {
                 TT::IDENT |
                 TT::NUMBER |
                 TT::BOOLEAN |
-                TT::STRING => Ok(Node::from(tk)),
+                TT::STRING => self._parese_simple(),
                 TT::LPAREN => self._parse_parentheses(),
+                TT::CALLABLE => self._parse_callable(),
                 _ => Error::next_token_not_primary(&tk.value)
             }
         } else {
@@ -137,10 +138,45 @@ impl Lexer<'_> {
         }
     }
 
+    fn _parese_simple(&mut self) -> Result<Node, Error> {
+        if let Some(tk) = self.tokens.pop() {
+            Ok(Node::from(tk))
+        } else {
+            Error::no_more_token_vague()
+        }
+    }
+
     fn _parse_parentheses(&mut self) -> Result<Node, Error> {
+        self._must_eat(TT::LPAREN)?;
         let expr: Node = self._parse_expression()?;
         self._must_eat(TT::RPAREN)?;
         Ok(expr)
+    }
+
+    fn _parse_callable(&mut self) -> Result<Node, Error> {
+        if let Some(tk) = self.tokens.pop() {
+            let mut callable = Node::from(tk);
+            self._must_eat(TT::LPAREN)?;
+
+            loop {
+                let next: Node = self._parse_expression()?;
+                callable.branch.push(next);
+                if let Some(s) = self.tokens.last() {
+                    if s.kind == TT::COMMA {
+                        self._must_eat(TT::COMMA)?;
+                    } else if s.kind == TT::RPAREN {
+                        break;
+                    } else {
+                        return Error::invalid_param();
+                    }
+                }
+            }
+
+            self._must_eat(TT::RPAREN)?;
+            Ok(callable)
+        } else {
+            Error::no_more_token_vague()
+        }
     }
 
     pub fn _must_eat(&mut self, kind: TT) -> Result<(), Error>{
@@ -177,21 +213,27 @@ impl Node {
 
 
 impl Error {
+    fn invalid_param() -> Result<Node, Error> {
+        Err(Self {
+            msg: format!("expect `(` or `,`")
+        })
+    }
+
     fn incorrect_next_token(expect: TT, this: TT) -> Result<(), Error> {
         Err(Self {
-            msg: format!("expect [{:?}], but see [{:?}]", expect, this)
+            msg: format!("expect `{:?}`, but see `{:?}`", expect, this)
         })
     }
 
     fn next_token_not_primary(value: &String) -> Result<Node, Error> {
         Err(Self {
-            msg: format!("expect primary token, but see [{:?}]", value)
+            msg: format!("expect primary token, but see `{:?}`", value)
         })
     }
 
     fn no_more_token(expect: TT) -> Result<(), Error> {
         Err(Self {
-            msg: format!("expect [{:?}], but no more", expect)
+            msg: format!("expect `{:?}`, but no more", expect)
         })
     }
 
