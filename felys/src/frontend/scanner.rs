@@ -37,10 +37,11 @@ impl Lexer<'_> {
                 '<' |
                 '=' => self._scan_comp_binoptr()?,
                 '!' => self._scan_unaoptr()?,
-                '(' |
+                '(' => self._scan_left_paren()?,
                 ')' |
                 '{' |
                 '}' | 
+                ',' |
                 ';' => self._scan_simple_single()?,
                 _ => return Error::invalid_char(*ch)
             };
@@ -120,6 +121,7 @@ impl Lexer<'_> {
             "else" => token.to(TT::ELSE),
             "while" => token.to(TT::WHILE),
             "print" => token.to(TT::PRINT),
+            "def" => token.to(TT::DEF),
             "true" |
             "false" => token.to(TT::BOOLEAN),
             "and" |
@@ -205,16 +207,33 @@ impl Lexer<'_> {
 
     fn _scan_simple_single(&mut self) -> Result<Token, Error> {
         if let Some(ch) = self.iter.next() {
-            let mut token = Token::null();
+            let mut token: Token = Token::null();
             token.push(ch);
             match ch {
-                '(' => token.to(TT::LPAREN),
                 ')' => token.to(TT::RPAREN),
                 '{' => token.to(TT::LBRACE),
                 '}' => token.to(TT::RBRACE),
                 ';' => token.to(TT::SEMICOL),
+                ',' => token.to(TT::COMMA),
                 _ => ()
             }
+            Ok(token)
+        } else {
+            Error::no_more_char()
+        }
+    }
+
+    fn _scan_left_paren(&mut self) -> Result<Token, Error> {
+        if let Some(ch) = self.iter.next() {
+            let mut token: Token = Token::lparen();
+            token.push(ch);
+
+            if let Some(tk) = self.tokens.last_mut() {
+                if tk.kind == TT::IDENT {
+                    tk.kind = TT::CALLABLE;
+                }
+            }
+
             Ok(token)
         } else {
             Error::no_more_char()
@@ -224,6 +243,10 @@ impl Lexer<'_> {
 
 
 impl Token {
+    pub fn lparen() -> Self {
+        Self::new(TT::LPAREN)
+    }
+
     pub fn null() -> Self {
         Self::new(TT::NULL)
     }

@@ -16,11 +16,14 @@ pub enum TokenType {
     BOOLEAN,
     BINOPTR,
     UNAOPTR,
+    CALLABLE,
+    COMMA,
     WHILE,
     IF,
     ELIF,
     ELSE,
-    PRINT
+    PRINT,
+    DEF
 }
 
 
