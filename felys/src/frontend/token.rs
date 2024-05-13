@@ -10,7 +10,7 @@ use super::Lexer;
 
 
 impl Lexer<'_> {
-    pub(super) fn next_token(&mut self) -> Result<Option<Token>, Error> {
+    pub(super) fn scan_next_token(&mut self) -> Result<Option<Token>, Error> {
         while let Some(ch) = self.chars.peek() {
             if *ch == ' ' || *ch == '\n' || *ch == '\r' {
                 self.chars.next();

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+
 #[derive(PartialEq, Clone, Copy, Debug)]
 pub enum KeywordType {
     LET,
@@ -43,17 +44,19 @@ pub enum TokenType {
     COMMA,
 }
 
-#[derive(Debug)]
+
 pub struct Token {
     pub ttype: TokenType,
     pub value: String,
 }
 
+
 pub struct Node {
     pub ntype: NodeType,
     pub value: String,
-    pub node: Vec<Node>
+    pub nodes: Vec<Node>
 }
+
 
 pub struct Statement {
     pub ktype: KeywordType,
@@ -62,28 +65,34 @@ pub struct Statement {
     pub alter: Option<Box<Statement>>
 }
 
+
 pub struct Value {
     pub vtype: ValueType,
     pub value: String
 }
+
 
 pub struct Callable {
     pub param: Vec<String>,
     pub body: Vec<Statement>
 }
 
+
 pub struct Environ {
     pub body: Vec<Scope>
 }
+
 
 pub struct Scope {
     pub variable: HashMap<String, Value>,
     pub callable: HashMap<String, Callable>
 }
 
+
 pub struct Error {
     pub msg: String
 }
+
 
 pub struct Program {
     pub body: Vec<Statement>
