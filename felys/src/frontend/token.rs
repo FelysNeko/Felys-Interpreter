@@ -27,6 +27,17 @@ impl Lexer<'_> {
                 'a'..='z' |
                 'A'..='Z' |
                 '_' => self._scan_ident_n_reserved()?,
+                '*' |
+                '/' |
+                '%' => self._scan_simple_binoptr()?,
+                '+' |
+                '-' => self._scan_add_binoptr()?,
+                '(' => self._scan_left_paren()?,
+                ')' |
+                '{' |
+                '}' |
+                ';' |
+                ',' => self._scan_simple()?,
                 _ => return Error::invalid_char(ch)
             };
             Some(token)
@@ -106,10 +117,84 @@ impl Lexer<'_> {
         };
         Ok(token)
     }
+
+    fn _scan_simple_binoptr(&mut self) -> Result<Token, Error> {
+        if let Some(ch) = self.chars.next() {
+            let mut token: Token = Token::binoptr();
+            token.value.push(ch);
+            Ok(token)
+        } else {
+            Error::no_more_char()
+        }
+    }
+
+    fn _scan_add_binoptr(&mut self) -> Result<Token, Error> {
+        let prev: TT = match self.token.last() {
+            Some(tk) => tk.ttype,
+            None => TT::LPAREN
+        };
+
+        if let Some(ch) = self.chars.next() {
+            let mut token: Token = Token::binoptr();
+            token.value.push(ch);
+            token.ttype = match prev {
+                TT::NODE(NT::UNAOPTR) |
+                TT::NODE(NT::BINOPTR) |
+                TT::LPAREN => TT::NODE(NT::UNAOPTR),
+                _ => token.ttype
+            };
+            Ok(token)
+        } else {
+            Error::no_more_char()
+        }
+    }
+
+    fn _scan_left_paren(&mut self) -> Result<Token, Error> {
+        if let Some(ch) = self.chars.next() {
+            let mut token: Token = Token::lparen();
+            token.value.push(ch);
+
+            if let Some(tk) = self.token.last_mut() {
+                if tk.ttype == TT::NODE(NT::VALUE(VT::IDENT)) {
+                    tk.ttype = TT::NODE(NT::CALLABLE);
+                }
+            }
+
+            Ok(token)
+        } else {
+            Error::no_more_char()
+        }
+    }
+
+    fn _scan_simple(&mut self) -> Result<Token, Error> {
+        if let Some(ch) = self.chars.next() {
+            let ttype: TT = match ch {
+                ')' => TT::RPAREN,
+                '{' => TT::LBRACE,
+                '}' => TT::RBRACE,
+                ';' => TT::SEMICOL,
+                ',' => TT::COMMA,
+                _ => return Error::invalid_single_token(ch)
+            };
+            let mut token: Token = Token::new(ttype);
+            token.value.push(ch);
+            Ok(token)
+        } else {
+            Error::no_more_char()
+        }
+    }
 }
 
 
 impl Token {
+    fn lparen() -> Self {
+        Self::new(TT::LPAREN)
+    }
+
+    fn binoptr() -> Self {
+        Self::new(TT::NODE(NT::BINOPTR))
+    }
+
     fn identifier() -> Self {
         Self::new(TT::NODE(NT::VALUE(VT::IDENT)))
     }
@@ -132,6 +217,10 @@ impl Token {
 
 
 impl Error {
+    fn invalid_single_token(c: char) -> Result<Token, Error> {
+        Err(Self { msg: format!("cannot convert char `{}` to token", c) })
+    }
+
     fn invalid_char(c: &char) -> Result<Option<Token>, Error> {
         Err(Self { msg: format!("char `{}` is invalid", c) })
     }
