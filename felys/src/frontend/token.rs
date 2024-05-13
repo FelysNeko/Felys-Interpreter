@@ -8,6 +8,7 @@ use crate::shared::{
 };
 use super::Lexer;
 
+
 impl Lexer<'_> {
     pub(super) fn next_token(&mut self) -> Result<Option<Token>, Error> {
         while let Some(ch) = self.chars.peek() {
@@ -32,6 +33,10 @@ impl Lexer<'_> {
                 '%' => self._scan_simple_binoptr()?,
                 '+' |
                 '-' => self._scan_add_binoptr()?,
+                '>' |
+                '<' => self._scan_cmp_binoptr()?,
+                '=' => self._scan_assignment()?,
+                '!' => self._scan_neg_unaoptr()?,
                 '(' => self._scan_left_paren()?,
                 ')' |
                 '{' |
@@ -149,6 +154,60 @@ impl Lexer<'_> {
         }
     }
 
+    fn _scan_assignment(&mut self) -> Result<Token, Error> {
+        if let Some(ch) = self.chars.next() {
+            let mut token: Token = Token::binoptr();
+            token.value.push(ch);
+
+            if let Some(ch) = self.chars.peek() {
+                if *ch == '>' {
+                    token.ttype = TT::ARROW;
+                }
+                if *ch == '=' || *ch == '>' {
+                    token.value.push(*ch);
+                    self.chars.next();
+                }
+            }
+            Ok(token)
+        } else {
+            Error::no_more_char()
+        }
+    }
+
+    fn _scan_cmp_binoptr(&mut self) -> Result<Token, Error> {
+        if let Some(ch) = self.chars.next() {
+            let mut token: Token = Token::binoptr();
+            token.value.push(ch);
+
+            if let Some(ch) = self.chars.peek() {
+                if *ch == '=' {
+                    token.value.push(*ch);
+                    self.chars.next();
+                }
+            }
+            Ok(token)
+        } else {
+            Error::no_more_char()
+        }
+    }
+
+    fn _scan_neg_unaoptr(&mut self) -> Result<Token, Error> {
+        if let Some(ch) = self.chars.next() {
+            let mut token: Token = Token::unaoptr();
+            token.value.push(ch);
+
+            if let Some(ch) = self.chars.peek() {
+                if *ch == '=' {
+                    token.value.push(*ch);
+                    self.chars.next();
+                }
+            }
+            Ok(token)
+        } else {
+            Error::no_more_char()
+        }
+    }
+
     fn _scan_left_paren(&mut self) -> Result<Token, Error> {
         if let Some(ch) = self.chars.next() {
             let mut token: Token = Token::lparen();
@@ -189,6 +248,10 @@ impl Lexer<'_> {
 impl Token {
     fn lparen() -> Self {
         Self::new(TT::LPAREN)
+    }
+
+    fn unaoptr() -> Self {
+        Self::new(TT::NODE(NT::UNAOPTR))
     }
 
     fn binoptr() -> Self {
