@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Debug)]
 pub enum KeywordType {
     LET,
     WHILE,
@@ -12,7 +12,7 @@ pub enum KeywordType {
 }
 
 
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Debug)]
 pub enum ValueType {
     NUMBER,
     STRING,
@@ -21,7 +21,7 @@ pub enum ValueType {
 }
 
 
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Debug)]
 pub enum NodeType {
     VALUE(ValueType),
     BINOPTR,
@@ -30,7 +30,7 @@ pub enum NodeType {
 }
 
 
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Debug)]
 pub enum TokenType {
     KEYWORD(KeywordType),
     NODE(NodeType),
@@ -43,6 +43,7 @@ pub enum TokenType {
     COMMA,
 }
 
+#[derive(Debug)]
 pub struct Token {
     pub ttype: TokenType,
     pub value: String,
