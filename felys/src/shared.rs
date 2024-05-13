@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-
 pub enum KeywordType {
     LET,
     WHILE,
@@ -74,7 +73,7 @@ pub struct Scope {
 }
 
 pub struct Error {
-    pub message: String
+    pub msg: String
 }
 
 pub struct Program {

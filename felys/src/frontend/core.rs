@@ -7,6 +7,10 @@ pub fn parse(input: String) -> Result<(), Error> {
         token: Vec::new()
     };
 
+    while let Some(tk) = lxr.next_token()? {
+        lxr.token.push(tk)
+    }
+
     Ok(())
 }
 
