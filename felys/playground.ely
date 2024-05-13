@@ -1,0 +1,21 @@
+let add = (x, y) => {
+    return x + y;
+}
+
+let sub = (x, y) => x-y;
+
+let a = 11;
+let b = 19;
+
+if b {
+    if add(a, b) == 30 {
+        render a + ' + ' + b + ' = 30';
+    } elif a = 0 {
+        render 'hello, world';
+    } else {
+        while a {
+            render a = a-1;
+        }
+        render elysia + ' is my waifu';
+    }
+}
