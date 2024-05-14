@@ -149,25 +149,19 @@ impl Lexer<'_> {
             let mut callable: Node = Node::from(tk)?;
             self.eat(TT::LPAREN)?;
 
-            loop {
-                let next: Node = self.parse_expression()?;
-                callable.nodes.push(next);
-                if let Some(s) = self.token.last() {
-                    if s.ttype == TT::COMMA {
-                        self.eat(TT::COMMA)?;
-                    } else if s.ttype == TT::RPAREN {
-                        break;
-                    } else {
-                        return Error::invalid_param(&s.value);
-                    }
+            while let Some(tk) = self.token.last() {
+                if tk.ttype == TT::COMMA {
+                    self.eat(TT::COMMA)?;
+                } else if tk.ttype == TT::RPAREN {
+                    self.eat(TT::RPAREN)?;
+                    return Ok(callable);
+                } else {
+                    let next: Node = self.parse_expression()?;
+                    callable.nodes.push(next);
                 }
             }
-
-            self.eat(TT::RPAREN)?;
-            Ok(callable)
-        } else {
-            Error::no_more_token()
         }
+        Error::no_more_token()
     }
 
     fn _parse_parentheses(&mut self) -> Result<Node, Error> {
@@ -179,7 +173,7 @@ impl Lexer<'_> {
 }
 
 impl Node {
-    fn from(tk: Token) -> Result<Self, Error> {
+    pub(super) fn from(tk: Token) -> Result<Self, Error> {
         if let TT::NODE(ntype) = tk.ttype {
             Ok(Self { ntype, value: tk.value, nodes: Vec::new() })
         } else {
@@ -190,10 +184,6 @@ impl Node {
 
 
 impl Error {
-    fn invalid_param(s: &String) -> Result<Node, Error> {
-        Err(Self { msg: format!("expect `,` or `)`, but see {}", s) })
-    }
-
     fn invalid_token_type(t: TT) -> Result<Node, Error> {
         Err(Self { msg: format!("cannot convert token {:?} to node", t) })
     }
@@ -202,7 +192,7 @@ impl Error {
         Err(Self { msg: format!("expect primary token, but see `{}`", v) })
     }
 
-    fn no_more_token() -> Result<Node, Error> {
+    pub(super) fn no_more_token() -> Result<Node, Error> {
         Err(Self { msg: format!("no more token to parse") })
     }
 }

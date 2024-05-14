@@ -9,7 +9,8 @@ pub enum KeywordType {
     ELIF,
     ELSE,
     RENDER,
-    RETURN
+    RETURN,
+    NULL
 }
 
 
@@ -40,17 +41,18 @@ pub enum TokenType {
     LBRACE,
     RBRACE,
     SEMICOL,
-    ARROW,
     COMMA,
+    PIPE
 }
 
-
+#[derive(Debug)]
 pub struct Token {
     pub ttype: TokenType,
     pub value: String,
 }
 
 
+#[derive(Debug)]
 pub struct Node {
     pub ntype: NodeType,
     pub value: String,
@@ -58,6 +60,7 @@ pub struct Node {
 }
 
 
+#[derive(Debug)]
 pub struct Statement {
     pub ktype: KeywordType,
     pub expr: Node,
@@ -66,6 +69,7 @@ pub struct Statement {
 }
 
 
+#[derive(Debug)]
 pub struct Value {
     pub vtype: ValueType,
     pub value: String
@@ -94,6 +98,7 @@ pub struct Error {
 }
 
 
+#[derive(Debug)]
 pub struct Program {
     pub body: Vec<Statement>
 }

@@ -34,14 +34,15 @@ impl Lexer<'_> {
                 '+' |
                 '-' => self._scan_add_binoptr()?,
                 '>' |
-                '<' => self._scan_cmp_binoptr()?,
-                '=' => self._scan_assignment()?,
+                '<' |
+                '=' => self._scan_cmp_binoptr()?,
                 '!' => self._scan_neg_unaoptr()?,
                 '(' => self._scan_left_paren()?,
                 ')' |
                 '{' |
                 '}' |
                 ';' |
+                '|' |
                 ',' => self._scan_simple()?,
                 _ => return Error::invalid_char(ch)
             };
@@ -154,26 +155,6 @@ impl Lexer<'_> {
         }
     }
 
-    fn _scan_assignment(&mut self) -> Result<Token, Error> {
-        if let Some(ch) = self.chars.next() {
-            let mut token: Token = Token::binoptr();
-            token.value.push(ch);
-
-            if let Some(ch) = self.chars.peek() {
-                if *ch == '>' {
-                    token.ttype = TT::ARROW;
-                }
-                if *ch == '=' || *ch == '>' {
-                    token.value.push(*ch);
-                    self.chars.next();
-                }
-            }
-            Ok(token)
-        } else {
-            Error::no_more_char()
-        }
-    }
-
     fn _scan_cmp_binoptr(&mut self) -> Result<Token, Error> {
         if let Some(ch) = self.chars.next() {
             let mut token: Token = Token::binoptr();
@@ -233,6 +214,7 @@ impl Lexer<'_> {
                 '}' => TT::RBRACE,
                 ';' => TT::SEMICOL,
                 ',' => TT::COMMA,
+                '|' => TT::PIPE,
                 _ => return Error::invalid_single_token(ch)
             };
             let mut token: Token = Token::new(ttype);
@@ -270,7 +252,7 @@ impl Token {
         Self::new(TT::NODE(NT::VALUE(VT::STRING)))
     }
 
-    fn new(ttype: TT) -> Self {
+    pub(super) fn new(ttype: TT) -> Self {
         Self {
             ttype,
             value: String::new(),

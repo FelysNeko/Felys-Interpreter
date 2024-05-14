@@ -1,11 +1,12 @@
 use crate::shared::{
     TokenType as TT,
+    Program,
     Error
 };
 use super::Lexer;
 
 
-pub fn parse(input: String) -> Result<(), Error> {
+pub fn parse(input: String) -> Result<Program, Error> {
     let mut lxr: Lexer = Lexer {
         chars: input.chars().peekable(),
         token: Vec::new()
@@ -17,9 +18,19 @@ pub fn parse(input: String) -> Result<(), Error> {
 
     lxr.token.reverse();
 
-    Ok(())
+    let mut prog: Program = Program::new();
+    while let Some(stat) = lxr.parse_next_stat()? {
+        prog.body.push(stat)
+    }
+
+    Ok(prog)
 }
 
+impl Program {
+    fn new() -> Self {
+        Self { body: Vec::new() }
+    }
+}
 
 impl Lexer<'_> {
     pub(super) fn eat(&mut self, t: TT) -> Result<(), Error>{
