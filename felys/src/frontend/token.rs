@@ -22,28 +22,28 @@ impl Lexer<'_> {
         let next: Option<Token> = if let Some(ch) = self.chars.peek() {
             let token: Token = match ch {
                 '\'' |
-                '\"' => self._scan_string()?,
+                '\"' => self.scan_string()?,
                 '0'..='9' |
-                '.' => self._scan_number()?,
+                '.' => self.scan_number()?,
                 'a'..='z' |
                 'A'..='Z' |
-                '_' => self._scan_ident_n_reserved()?,
+                '_' => self.scan_ident_n_reserved()?,
                 '*' |
                 '/' |
-                '%' => self._scan_simple_binoptr()?,
+                '%' => self.scan_simple_binoptr()?,
                 '+' |
-                '-' => self._scan_add_binoptr()?,
+                '-' => self.scan_add_binoptr()?,
                 '>' |
                 '<' |
-                '=' => self._scan_cmp_binoptr()?,
-                '!' => self._scan_neg_unaoptr()?,
-                '(' => self._scan_left_paren()?,
+                '=' => self.scan_cmp_binoptr()?,
+                '!' => self.scan_neg_unaoptr()?,
+                '(' => self.scan_left_paren()?,
                 ')' |
                 '{' |
                 '}' |
                 ';' |
                 '|' |
-                ',' => self._scan_simple()?,
+                ',' => self.scan_simple()?,
                 _ => return Error::invalid_char(ch)
             };
             Some(token)
@@ -53,7 +53,7 @@ impl Lexer<'_> {
         Ok(next)
     }
 
-    fn _scan_string(&mut self) -> Result<Token, Error> {
+    fn scan_string(&mut self) -> Result<Token, Error> {
         let mut token: Token = Token::string();
 
         let sos: char = match self.chars.next() {
@@ -72,7 +72,7 @@ impl Lexer<'_> {
         Error::string_not_closed(token.value)
     }
 
-    fn _scan_number(&mut self) -> Result<Token, Error> {
+    fn scan_number(&mut self) -> Result<Token, Error> {
         let mut token: Token = Token::number();
         let mut dot: bool = false;
 
@@ -95,7 +95,7 @@ impl Lexer<'_> {
         Ok(token)
     }
 
-    fn _scan_ident_n_reserved(&mut self) -> Result<Token, Error> {
+    fn scan_ident_n_reserved(&mut self) -> Result<Token, Error> {
         let mut token: Token = Token::identifier();
 
         while let Some(ch) = self.chars.peek() {
@@ -124,7 +124,7 @@ impl Lexer<'_> {
         Ok(token)
     }
 
-    fn _scan_simple_binoptr(&mut self) -> Result<Token, Error> {
+    fn scan_simple_binoptr(&mut self) -> Result<Token, Error> {
         if let Some(ch) = self.chars.next() {
             let mut token: Token = Token::binoptr();
             token.value.push(ch);
@@ -134,7 +134,7 @@ impl Lexer<'_> {
         }
     }
 
-    fn _scan_add_binoptr(&mut self) -> Result<Token, Error> {
+    fn scan_add_binoptr(&mut self) -> Result<Token, Error> {
         let prev: TT = match self.token.last() {
             Some(tk) => tk.ttype,
             None => TT::LPAREN
@@ -155,7 +155,7 @@ impl Lexer<'_> {
         }
     }
 
-    fn _scan_cmp_binoptr(&mut self) -> Result<Token, Error> {
+    fn scan_cmp_binoptr(&mut self) -> Result<Token, Error> {
         if let Some(ch) = self.chars.next() {
             let mut token: Token = Token::binoptr();
             token.value.push(ch);
@@ -172,7 +172,7 @@ impl Lexer<'_> {
         }
     }
 
-    fn _scan_neg_unaoptr(&mut self) -> Result<Token, Error> {
+    fn scan_neg_unaoptr(&mut self) -> Result<Token, Error> {
         if let Some(ch) = self.chars.next() {
             let mut token: Token = Token::unaoptr();
             token.value.push(ch);
@@ -189,7 +189,7 @@ impl Lexer<'_> {
         }
     }
 
-    fn _scan_left_paren(&mut self) -> Result<Token, Error> {
+    fn scan_left_paren(&mut self) -> Result<Token, Error> {
         if let Some(ch) = self.chars.next() {
             let mut token: Token = Token::lparen();
             token.value.push(ch);
@@ -206,7 +206,7 @@ impl Lexer<'_> {
         }
     }
 
-    fn _scan_simple(&mut self) -> Result<Token, Error> {
+    fn scan_simple(&mut self) -> Result<Token, Error> {
         if let Some(ch) = self.chars.next() {
             let ttype: TT = match ch {
                 ')' => TT::RPAREN,
@@ -251,13 +251,6 @@ impl Token {
     fn string() -> Self {
         Self::new(TT::NODE(NT::VALUE(VT::STRING)))
     }
-
-    pub(super) fn new(ttype: TT) -> Self {
-        Self {
-            ttype,
-            value: String::new(),
-        }
-    }
 }
 
 
@@ -279,6 +272,6 @@ impl Error {
     }
 
     fn no_more_char() -> Result<Token, Error> {
-        Err(Self { msg: format!("no more char") })
+        Err(Self { msg: format!("no more char to parse") })
     }
 }

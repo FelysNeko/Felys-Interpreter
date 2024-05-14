@@ -10,7 +10,7 @@ use crate::shared::Token;
 use std::iter::Peekable;
 use std::str::Chars;
 
-pub struct Lexer<'a> {
-    pub chars: Peekable<Chars<'a>>,
-    pub token: Vec<Token>
+struct Lexer<'a> {
+    chars: Peekable<Chars<'a>>,
+    token: Vec<Token>
 }

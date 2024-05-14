@@ -10,16 +10,16 @@ use super::Lexer;
 
 impl Lexer<'_> {
     pub(super) fn parse_expression(&mut self) -> Result<Node, Error>{
-        self._parse_assignment()
+        self.parse_assignment()
     }
 
-    fn _parse_assignment(&mut self) -> Result<Node, Error> {
-        let mut left: Node = self._parse_logical()?;
+    fn parse_assignment(&mut self) -> Result<Node, Error> {
+        let mut left: Node = self.parse_logical()?;
 
         while let Some(tk) = self.token.pop() {
             if tk.ttype == TT::NODE(NT::BINOPTR) && tk.value == "=" {
                 let mut new: Node = Node::from(tk)?;
-                let right: Node = self._parse_assignment()?;
+                let right: Node = self.parse_assignment()?;
                 new.nodes.push(left);
                 new.nodes.push(right);
                 left = new;
@@ -31,13 +31,13 @@ impl Lexer<'_> {
         Ok(left)
     }
 
-    fn _parse_logical(&mut self) -> Result<Node, Error> {
-        let mut left: Node = self._parse_compare()?;
+    fn parse_logical(&mut self) -> Result<Node, Error> {
+        let mut left: Node = self.parse_compare()?;
 
         while let Some(tk) = self.token.pop() {
             if tk.ttype == TT::NODE(NT::BINOPTR) && (tk.value=="and" || tk.value=="or") {
                 let mut new: Node = Node::from(tk)?;
-                let right: Node = self._parse_compare()?;
+                let right: Node = self.parse_compare()?;
                 new.nodes.push(left);
                 new.nodes.push(right);
                 left = new;
@@ -49,8 +49,8 @@ impl Lexer<'_> {
         Ok(left)
     }
 
-    fn _parse_compare(&mut self) -> Result<Node, Error> {
-        let mut left: Node = self._parse_additive()?;
+    fn parse_compare(&mut self) -> Result<Node, Error> {
+        let mut left: Node = self.parse_additive()?;
 
         while let Some(tk) = self.token.pop() {
             if tk.ttype == TT::NODE(NT::BINOPTR) && (
@@ -58,7 +58,7 @@ impl Lexer<'_> {
                 tk.value == ">=" || tk.value == "<=" || tk.value == "<"
             ) {
                 let mut new: Node = Node::from(tk)?;
-                let right: Node = self._parse_additive()?;
+                let right: Node = self.parse_additive()?;
                 new.nodes.push(left);
                 new.nodes.push(right);
                 left = new;
@@ -70,13 +70,13 @@ impl Lexer<'_> {
         Ok(left)
     }
 
-    fn _parse_additive(&mut self) -> Result<Node, Error> {
-        let mut left: Node = self._parse_multiply()?;
+    fn parse_additive(&mut self) -> Result<Node, Error> {
+        let mut left: Node = self.parse_multiply()?;
 
         while let Some(tk) = self.token.pop() {
             if tk.ttype == TT::NODE(NT::BINOPTR) && (tk.value == "+" || tk.value == "-") {
                 let mut new: Node = Node::from(tk)?;
-                let right: Node = self._parse_multiply()?;
+                let right: Node = self.parse_multiply()?;
                 new.nodes.push(left);
                 new.nodes.push(right);
                 left = new;
@@ -88,15 +88,15 @@ impl Lexer<'_> {
         Ok(left)
     }
 
-    fn _parse_multiply(&mut self) -> Result<Node, Error> {
-        let mut left: Node = self._parse_unary()?;
+    fn parse_multiply(&mut self) -> Result<Node, Error> {
+        let mut left: Node = self.parse_unary()?;
 
         while let Some(tk) = self.token.pop() {
             if tk.ttype == TT::NODE(NT::BINOPTR) && (
                 tk.value == "*" || tk.value == "/" || tk.value == "%"
             ) {
                 let mut new: Node = Node::from(tk)?;
-                let right: Node = self._parse_unary()?;
+                let right: Node = self.parse_unary()?;
                 new.nodes.push(left);
                 new.nodes.push(right);
                 left = new;
@@ -108,11 +108,11 @@ impl Lexer<'_> {
         Ok(left)
     }
 
-    fn _parse_unary(&mut self) -> Result<Node, Error> {
+    fn parse_unary(&mut self) -> Result<Node, Error> {
         while let Some(tk) = self.token.pop() {
             if tk.ttype == TT::NODE(NT::UNAOPTR) {
                 let mut new: Node = Node::from(tk)?;
-                let node: Node = self._parse_unary()?;
+                let node: Node = self.parse_unary()?;
                 new.nodes.push(node);
                 return Ok(new);
             } else {
@@ -120,31 +120,31 @@ impl Lexer<'_> {
                 break;
             }
         }
-        self._parse_primary()
+        self.parse_primary()
     }
 
-    fn _parse_primary(&mut self) -> Result<Node, Error> {
+    fn parse_primary(&mut self) -> Result<Node, Error> {
         if let Some(tk) = self.token.last() {
             match tk.ttype {
-                TT::NODE(NT::VALUE(_)) => self._parse_value(),
-                TT::NODE(NT::CALLABLE) => self._parse_callable(),
-                TT::LPAREN => self._parse_parentheses(),
+                TT::NODE(NT::VALUE(_)) => self.parse_value(),
+                TT::NODE(NT::CALLABLE) => self.parse_callable(),
+                TT::LPAREN => self.parse_parentheses(),
                 _ => Error::token_not_primary(&tk.value)
             }
         } else {
-            Error::no_more_token()
+            Error::node_no_more_token()
         }
     }
 
-    fn _parse_value(&mut self) -> Result<Node, Error> {
+    fn parse_value(&mut self) -> Result<Node, Error> {
         if let Some(tk) = self.token.pop() {
             Node::from(tk)
         } else {
-            Error::no_more_token()
+            Error::node_no_more_token()
         }
     }
 
-    fn _parse_callable(&mut self) -> Result<Node, Error> {
+    fn parse_callable(&mut self) -> Result<Node, Error> {
         if let Some(tk) = self.token.pop() {
             let mut callable: Node = Node::from(tk)?;
             self.eat(TT::LPAREN)?;
@@ -161,16 +161,17 @@ impl Lexer<'_> {
                 }
             }
         }
-        Error::no_more_token()
+        Error::node_no_more_token()
     }
 
-    fn _parse_parentheses(&mut self) -> Result<Node, Error> {
+    fn parse_parentheses(&mut self) -> Result<Node, Error> {
         self.eat(TT::LPAREN)?;
         let expr: Node = self.parse_expression()?;
         self.eat(TT::RPAREN)?;
         Ok(expr)
     }
 }
+
 
 impl Node {
     pub(super) fn from(tk: Token) -> Result<Self, Error> {
@@ -192,7 +193,7 @@ impl Error {
         Err(Self { msg: format!("expect primary token, but see `{}`", v) })
     }
 
-    pub(super) fn no_more_token() -> Result<Node, Error> {
+    pub(super) fn node_no_more_token() -> Result<Node, Error> {
         Err(Self { msg: format!("no more token to parse") })
     }
 }

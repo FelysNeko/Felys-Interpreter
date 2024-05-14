@@ -1,7 +1,8 @@
 use crate::shared::{
     TokenType as TT,
     Program,
-    Error
+    Error,
+    Token
 };
 use super::Lexer;
 
@@ -26,11 +27,13 @@ pub fn parse(input: String) -> Result<Program, Error> {
     Ok(prog)
 }
 
+
 impl Program {
     fn new() -> Self {
         Self { body: Vec::new() }
     }
 }
+
 
 impl Lexer<'_> {
     pub(super) fn eat(&mut self, t: TT) -> Result<(), Error>{
@@ -45,6 +48,17 @@ impl Lexer<'_> {
         }
     }
 }
+
+
+impl Token {
+    pub fn new(ttype: TT) -> Self {
+        Self {
+            ttype,
+            value: String::new(),
+        }
+    }
+}
+
 
 impl Error {
     fn incorrect_next_token(e: TT, s: String) -> Result<(), Error> {
