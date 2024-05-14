@@ -10,7 +10,7 @@ let b = 19;
 if b {
     if add(a, b) == 30 {
         render a + ' + ' + b + ' = 30';
-    } elif a = 0 {
+    } elif a == 0 and b == 0 {
         render 'hello, world';
     } else {
         while a {
@@ -20,4 +20,6 @@ if b {
     }
 }
 
-let sub = |x, y| x-y;
+let sub = |x, y, z| {
+    return x - y*z;
+}
