@@ -172,19 +172,18 @@ impl Lexer<'_> {
         ident.ntype = NT::CALLABLE;
         self.eat(TT::PIPE)?;
 
-        while let Some(tk) = self.token.last() {
-            if tk.ttype == TT::COMMA {
-                self.eat(TT::COMMA)?;
-            } else if tk.ttype == TT::PIPE {
-                self.eat(TT::PIPE)?;
-                return Ok(ident);
-            } else {
-                let next: Node = self.get_ident()?;
-                ident.nodes.push(next);
-            }
-        }
+        loop {
+            let next: Node = self.get_ident()?;
+            ident.nodes.push(next);
 
-        Error::node_no_more_token()
+            if let Some(s) = self.token.pop() {
+                match s.ttype {
+                    TT::COMMA => (),
+                    TT::PIPE => return Ok(ident),
+                    _ => return Error::invalid_args(s.value)
+                }
+            }
+        };
     }
 
     fn get_ident(&mut self) -> Result<Node, Error> {
@@ -225,6 +224,10 @@ impl Node {
 
 
 impl Error {
+    fn invalid_args(s: String) -> Result<Node, Error> {
+        Err(Self { msg: format!("expect `|` or `,`, but see `{}`", s)})
+    }
+
     fn stat_no_more_token() -> Result<Statement, Error> {
         Err(Self { msg: format!("no more token to parse")})
     }

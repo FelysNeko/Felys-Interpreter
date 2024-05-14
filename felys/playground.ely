@@ -19,3 +19,5 @@ if b {
         render elysia + ' is my waifu';
     }
 }
+
+let sub = |x, y| x-y;

@@ -149,17 +149,18 @@ impl Lexer<'_> {
             let mut callable: Node = Node::from(tk)?;
             self.eat(TT::LPAREN)?;
 
-            while let Some(tk) = self.token.last() {
-                if tk.ttype == TT::COMMA {
-                    self.eat(TT::COMMA)?;
-                } else if tk.ttype == TT::RPAREN {
-                    self.eat(TT::RPAREN)?;
-                    return Ok(callable);
-                } else {
-                    let next: Node = self.parse_expression()?;
-                    callable.nodes.push(next);
+            loop {
+                let next: Node = self.parse_expression()?;
+                callable.nodes.push(next);
+    
+                if let Some(s) = self.token.pop() {
+                    match s.ttype {
+                        TT::COMMA => (),
+                        TT::RPAREN => return Ok(callable),
+                        _ => return Error::invalid_param(s.value)
+                    }
                 }
-            }
+            };
         }
         Error::node_no_more_token()
     }
@@ -185,6 +186,10 @@ impl Node {
 
 
 impl Error {
+    fn invalid_param(s: String) -> Result<Node, Error> {
+        Err(Self { msg: format!("expect `)` or `,`, but see `{}`", s)})
+    }
+
     fn invalid_token_type(t: TT) -> Result<Node, Error> {
         Err(Self { msg: format!("cannot convert token {:?} to node", t) })
     }
