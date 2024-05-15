@@ -45,6 +45,7 @@ pub enum TokenType {
     PIPE
 }
 
+
 #[derive(Debug)]
 pub struct Token {
     pub ttype: TokenType,
