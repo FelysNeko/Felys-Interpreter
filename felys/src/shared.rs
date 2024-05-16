@@ -19,7 +19,8 @@ pub enum ValueType {
     NUMBER,
     STRING,
     IDENT,
-    BOOLEAN
+    BOOLEAN,
+    NONE
 }
 
 
@@ -70,7 +71,7 @@ pub struct Statement {
 }
 
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Value {
     pub vtype: ValueType,
     pub value: String

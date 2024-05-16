@@ -117,6 +117,7 @@ impl Lexer<'_> {
             "return" => TT::KEYWORD(KT::RETURN),
             "true" |
             "false" => TT::NODE(NT::VALUE(VT::BOOLEAN)),
+            "none" => TT::NODE(NT::VALUE(VT::NONE)),
             "and" |
             "or" => TT::NODE(NT::BINOPTR),
             _ => token.ttype
