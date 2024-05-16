@@ -104,3 +104,8 @@ pub struct Error {
 pub struct Program {
     pub body: Vec<Statement>
 }
+
+
+pub struct Output {
+    pub lines: Vec<String>
+}

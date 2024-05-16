@@ -6,7 +6,7 @@ use crate::shared::{
 };
 
 impl Environ {
-    fn declare(&mut self, k:String, v:Value)  -> Result<(), Error> {
+    pub(super) fn declare(&mut self, k:String, v:Value)  -> Result<(), Error> {
         if let Some(scope) = self.body.last_mut() {
             match scope.variable.insert(k.clone(), v) {
                 Some(_) => Error::var_already_exist(k),
@@ -17,7 +17,7 @@ impl Environ {
         }
     }
 
-    fn assign(&mut self, k:String, v:Value) -> Result<(), Error> {
+    pub(super) fn assign(&mut self, k:String, v:Value) -> Result<(), Error> {
         for scope in self.body.iter_mut().rev() {
             if scope.variable.contains_key(&k) {
                 scope.variable.insert(k.clone(), v);
@@ -27,7 +27,7 @@ impl Environ {
         Error::assign_to_dne_var(k)
     }
 
-    fn get(&self, k:String) -> Result<Value, Error> {
+    pub(super) fn get(&self, k:String) -> Result<Value, Error> {
         for scope in self.body.iter().rev() {
             if let Some(v) = scope.variable.get(&k) {
                 return Ok(v.clone());
@@ -36,7 +36,7 @@ impl Environ {
         Error::get_dne_var(k)
     }
 
-    fn load(&mut self, k:String, v:Callable) -> Result<(), Error> {
+    pub(super) fn load(&mut self, k:String, v:Callable) -> Result<(), Error> {
         if let Some(scope) = self.body.last_mut() {
             match scope.callable.insert(k.clone(), v) {
                 Some(_) => Error::func_already_exist(k),
@@ -47,10 +47,10 @@ impl Environ {
         }
     }
 
-    fn call(&self, k:String) -> Result<Value, Error> {
+    pub(super) fn call(&self, k:String, args:Vec<Value>) -> Result<Value, Error> {
         for scope in self.body.iter().rev() {
-            if let Some(v) = scope.callable.get(&k) {
-                return todo!();
+            if let Some(c) = scope.callable.get(&k) {
+                return c.call(args);
             }
         }
         Error::call_dne_func(k)

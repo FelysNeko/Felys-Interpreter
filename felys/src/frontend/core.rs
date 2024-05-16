@@ -51,7 +51,7 @@ impl Lexer<'_> {
 
 
 impl Token {
-    pub fn new(ttype: TT) -> Self {
+    pub(super) fn new(ttype: TT) -> Self {
         Self {
             ttype,
             value: String::new(),
