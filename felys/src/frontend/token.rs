@@ -99,7 +99,7 @@ impl Lexer<'_> {
         let mut token: Token = Token::identifier();
 
         while let Some(ch) = self.chars.peek() {
-            if ch.is_ascii_alphabetic() || *ch == '_' {
+            if ch.is_ascii_alphanumeric() || *ch == '_' {
                 token.value.push(*ch);
                 self.chars.next();
             } else {
