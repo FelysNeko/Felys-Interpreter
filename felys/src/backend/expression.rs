@@ -10,22 +10,32 @@ use crate::shared::{
 
 
 impl Node {
-    pub(super) fn eval(&self, env: &mut Environ, out: &mut Output) -> Result<Value, Error> {
+    pub(super) fn eval(
+        &self,
+        env: &mut Environ,
+        out: &mut Output,
+        ctr: &mut usize
+    ) -> Result<Value, Error> {
         match self.ntype {
             NT::VALUE(_) => self.to_value(env),
-            NT::BINOPTR => self.eval_binoptr(env, out),
-            NT::UNAOPTR => self.eval_unaoptr(env, out),
-            NT::CALLABLE => self.call(env, out),
+            NT::BINOPTR => self.eval_binoptr(env, out, ctr),
+            NT::UNAOPTR => self.eval_unaoptr(env, out, ctr),
+            NT::CALLABLE => self.call(env, out, ctr),
         }
     }
 
-    fn call(&self, env: &mut Environ, out: &mut Output) -> Result<Value, Error> {
+    fn call(
+        &self,
+        env: &mut Environ,
+        out: &mut Output,
+        ctr: &mut usize
+    ) -> Result<Value, Error> {
         let mut args: Vec<Value> = Vec::new();
         for param in self.nodes.iter() {
-            let val: Value = param.eval(env, out)?;
+            let val: Value = param.eval(env, out, ctr)?;
             args.push(val);
         }
-        env.call(&self.value, args, out)
+        env.call(&self.value, args, out, ctr)
     }
 
     fn to_value(&self, env: &mut Environ) -> Result<Value, Error> {
@@ -40,9 +50,14 @@ impl Node {
         }
     }
 
-    fn eval_binoptr(&self, env: &mut Environ, out: &mut Output) -> Result<Value, Error> {
+    fn eval_binoptr(
+        &self,
+        env: &mut Environ,
+        out: &mut Output,
+        ctr: &mut usize
+    ) -> Result<Value, Error> {
         let rval: Value = match self.nodes.last() {
-            Some(node) => node.eval(env, out)?,
+            Some(node) => node.eval(env, out, ctr)?,
             None => Error::node_branches_missing(&self.value)?
         };
 
@@ -55,7 +70,7 @@ impl Node {
                     Error::cannot_assign(&self.value)?
                 }
             } else {
-                node.eval(env, out)?
+                node.eval(env, out, ctr)?
             },
             None => Error::node_branches_missing(&self.value)?
         };
@@ -78,9 +93,14 @@ impl Node {
         }
     }
 
-    fn eval_unaoptr(&self, env: &mut Environ, out: &mut Output) -> Result<Value, Error> {
+    fn eval_unaoptr(
+        &self,
+        env: &mut Environ,
+        out: &mut Output,
+        ctr: &mut usize
+    ) -> Result<Value, Error> {
         let val: Value = match self.nodes.first() {
-            Some(node) => node.eval(env, out)?,
+            Some(node) => node.eval(env, out, ctr)?,
             None => Error::node_branches_missing(&self.value)?
         };
 

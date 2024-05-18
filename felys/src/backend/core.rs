@@ -16,9 +16,10 @@ impl Program {
         ];
         let mut env: Environ = Environ::new(elysia);
         let mut out: Output = Output::new();
+        let mut ctr: usize = 0;
 
         for stat in self.body.iter() {
-            if let Some(result) = stat.run(&mut env, &mut out)? {
+            if let Some(result) = stat.run(&mut env, &mut out, &mut ctr)? {
                 out.body.push(format!("<{}>", result.value));
                 return Ok(out);
             }

@@ -59,10 +59,16 @@ impl Environ {
         }
     }
 
-    pub(super) fn call(&self, k:&String, args:Vec<Value>, out: &mut Output) -> Result<Value, Error> {
+    pub(super) fn call(
+        &self,
+        k:&String,
+        args:Vec<Value>,
+        out: &mut Output,
+        ctr: &mut usize
+    ) -> Result<Value, Error> {
         for scope in self.body.iter().rev() {
             if let Some(c) = scope.callable.get(k) {
-                return c.call(args, out);
+                return c.call(args, out, ctr);
             }
         }
         Error::call_dne_func(k)
@@ -71,7 +77,12 @@ impl Environ {
 
 
 impl Callable {
-    fn call(&self, args:Vec<Value>, out: &mut Output) -> Result<Value, Error> {
+    fn call(
+        &self,
+        args:Vec<Value>,
+        out: &mut Output,
+        ctr: &mut usize
+    ) -> Result<Value, Error> {
         if self.args.len() != args.len() {
             return Error::missing_parameter();
         }
@@ -84,7 +95,7 @@ impl Callable {
         let mut env: Environ = Environ::new(args);
         
         for stat in &self.body {
-            if let Some(result) = stat.run(&mut env, out)? {
+            if let Some(result) = stat.run(&mut env, out, ctr)? {
                 return Ok(result);
             };
         }
