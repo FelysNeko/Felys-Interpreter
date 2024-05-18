@@ -1,15 +1,29 @@
-x = 13;
-
-if x == 1 {
-    print 'hello world!';
-} elif x == 13 {
-    while x > 0 {
-        print x;
-        x = x - 1;
-    }
-} else {
-    print 42;
+let add = |x, y| {
+    x + y;
 }
 
-print 'Elysia is my waifu!';
-print '我永远单推爱莉！';
+let sub = |x, y| x-y;
+
+let a = 0;
+let b = 0;
+
+if b or true {
+    if add(a, b) == 30 {
+        render a + ' + ' + b + ' = 30';
+    } elif a == 0 and b == 0 {
+        render 'hello, world';
+        return 0;
+    } else {
+        while a {
+            render a = a-1;
+        }
+        render elysia + ' is my waifu';
+    }
+    render 'end of if';
+}
+
+let tri = |x, y, z| {
+    return x - y*z;
+}
+
+return 1;

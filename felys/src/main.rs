@@ -1,35 +1,35 @@
-mod core;
-mod environ;
+mod shared;
 mod frontend;
-mod runtime;
+mod backend;
 
-use std::fs;
-
-use core::frontend::Lexer;
-use core::runtime::Output;
-use core::Program;
 use std::process::exit;
+
+use frontend::parse;
+use shared::{
+    Program,
+    Output
+};
 
 
 fn main() {
-    let file: String = fs::read_to_string("playground.ely").expect("failed to read");
+    let input: String = std::fs::read_to_string("playground.ely")
+        .expect("cannot not open file");
 
-    let main: Program = match Lexer::parse(file) {
+    let program: Program = match parse(input) {
         Ok(p) => p,
         Err(e) => {
-            println!("SyntaxError: {}", e.render());
-            exit(1);
+            println!("{}", e.msg);
+            exit(1)
         }
     };
-
-    let out: Output = match main.run() {
-        Ok(r) => r,
+    
+    let output: Output = match program.run() {
+        Ok(o) => o,
         Err(e) => {
-            println!("RuntimeError: {}", e.render());
-            exit(1);
+            println!("{}", e.msg);
+            exit(1)
         }
     };
 
-    let s: String = out.render();
-    println!("{}", s);
+    println!("{}", output.render());
 }

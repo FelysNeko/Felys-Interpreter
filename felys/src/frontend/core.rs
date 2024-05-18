@@ -1,44 +1,26 @@
-use crate::core::{
+use crate::shared::{
     Program,
     Error
 };
-use crate::core::frontend::{
-    Statement,
-    Lexer
-};
+use super::Lexer;
 
 
-impl Lexer<'_> {
-    pub fn parse(input: String) -> Result<Program, Error> {
-        let mut lxr: Lexer<'_> = Lexer {
-            iter: input.chars().peekable(),
-            tokens: Vec::new()
-        };
+pub fn parse(input: String) -> Result<Program, Error> {
+    let mut lxr: Lexer = Lexer {
+        chars: input.chars().peekable(),
+        token: Vec::new()
+    };
 
-        while let Some(tk) = lxr.scan_next()? {
-            lxr.tokens.push(tk);
-        };
-
-        // we want to scan front left to right
-        // but `pop()` get you the last element
-        // so `reverse()` everything first
-        lxr.tokens.reverse();
-
-        let mut main: Program = Program::new();
-        while let Some(stat) = lxr.parse_next()? {
-            main.push(stat);
-        }
-        Ok(main)
-    }
-}
-
-
-impl Program {
-    pub fn new() -> Self {
-        Self { body: Vec::new() }
+    while let Some(tk) = lxr.scan_next_token()? {
+        lxr.token.push(tk)
     }
 
-    pub fn push(&mut self, stat: Statement) {
-        self.body.push(stat);
+    lxr.token.reverse();
+
+    let mut prog: Program = Program::new();
+    while let Some(stat) = lxr.parse_next_stat()? {
+        prog.body.push(stat)
     }
+
+    Ok(prog)
 }
