@@ -1,4 +1,5 @@
 use crate::shared::{
+    ValueType as VT,
     Callable,
     Environ,
     Output,
@@ -69,6 +70,36 @@ impl Environ {
 }
 
 
+impl Callable {
+    fn call(&self, args:Vec<Value>, out: &mut Output) -> Result<Value, Error> {
+        if self.param.len() != args.len() {
+            return Error::missing_parameter();
+        }
+
+        let args: Vec<(String, Value)> = self.param.clone().into_iter()
+            .zip(args.into_iter())
+            .collect();
+
+        let mut env: Environ = Environ::new(args);
+        
+        for stat in &self.body {
+            if let Some(result) = stat.run(&mut env, out)? {
+                return Ok(result);
+            };
+        }
+
+        Ok(Value::none())
+    }
+}
+
+
+impl Value {
+    fn none() -> Self {
+        Self { vtype: VT::NONE, value: "none".to_string() }
+    }
+}
+
+
 impl Error {
     fn no_more_scope() -> Result<(), Error> {
         Err(Self { msg: format!("no more scope")})
@@ -92,5 +123,9 @@ impl Error {
 
     fn call_dne_func(s: &String) -> Result<Value, Error> {
         Err(Self { msg: format!("cannot call undeclared callable `{}`", s)})
+    }
+
+    fn missing_parameter() -> Result<Value, Error> {
+        Err(Self { msg: format!("function missing parameter")})
     }
 }

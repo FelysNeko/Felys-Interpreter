@@ -8,9 +8,6 @@ use crate::shared::{
     Node
 };
 
-// impl Try for std::iter::Map<std::slice::Iter<'_, Node>> {
-    
-// }
 
 impl Node {
     pub(super) fn eval(&self, env: &mut Environ, out: &mut Output) -> Result<Value, Error> {
