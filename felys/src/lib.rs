@@ -8,7 +8,7 @@ use shared::{
     Output
 };
 
-pub const LIMIT: usize = 1000;
+const LIMIT: usize = 1000;
 
 pub fn exec(code: String) -> String {
     let program: Program = match parse(code) {
