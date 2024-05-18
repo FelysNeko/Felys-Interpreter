@@ -72,11 +72,12 @@ impl Environ {
 
 impl Callable {
     fn call(&self, args:Vec<Value>, out: &mut Output) -> Result<Value, Error> {
-        if self.param.len() != args.len() {
+        if self.args.len() != args.len() {
             return Error::missing_parameter();
         }
 
-        let args: Vec<(String, Value)> = self.param.clone().into_iter()
+        let args: Vec<(String, Value)> = self.args.clone()
+            .into_iter()
             .zip(args.into_iter())
             .collect();
 
@@ -88,14 +89,7 @@ impl Callable {
             };
         }
 
-        Ok(Value::none())
-    }
-}
-
-
-impl Value {
-    fn none() -> Self {
-        Self { vtype: VT::NONE, value: "none".to_string() }
+        Value::new(VT::NONE, "none".to_string())
     }
 }
 

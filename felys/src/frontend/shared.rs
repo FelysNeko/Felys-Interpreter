@@ -2,6 +2,7 @@ use crate::shared::{
     KeywordType as KT,
     TokenType as TT,
     Statement,
+    Program,
     Token,
     Error,
     Node
@@ -43,6 +44,13 @@ impl Statement {
         alter: Option<Box<Statement>>
     ) -> Result<Self, Error> {
         Ok(Self { ktype, expr, body, alter })
+    }
+}
+
+
+impl Program {
+    pub fn new() -> Self {
+        Self { body: Vec::new() }
     }
 }
 

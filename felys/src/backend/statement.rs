@@ -78,7 +78,7 @@ impl Statement {
 
     fn run_render(&self, env: &mut Environ, out: &mut Output) -> Result<Option<Value>, Error> {
         let result: Value = self.expr.eval(env, out)?;
-        out.lines.push(result.value);
+        out.body.push(result.value);
         Ok(None)
     }
 
@@ -96,12 +96,5 @@ impl Statement {
         }
         env.shrink();
         Ok(None)
-    }
-}
-
-
-impl Callable {
-    fn new(args: Vec<String>, body: Vec<Statement>) -> Self {
-        Self { param: args, body }
     }
 }

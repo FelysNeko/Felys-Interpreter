@@ -19,11 +19,18 @@ impl Program {
 
         for stat in self.body.iter() {
             if let Some(result) = stat.run(&mut env, &mut out)? {
-                out.lines.push(format!("<{}>", result.value));
+                out.body.push(format!("<{}>", result.value));
                 return Ok(out);
             }
         }
 
         Ok(out)
+    }
+}
+
+
+impl Output {
+    pub fn render(&self) -> String {
+        return self.body.join("\n")
     }
 }

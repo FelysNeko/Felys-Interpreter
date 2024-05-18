@@ -81,7 +81,7 @@ pub struct Value {
 
 
 pub struct Callable {
-    pub param: Vec<String>,
+    pub args: Vec<String>,
     pub body: Vec<Statement>
 }
 
@@ -108,5 +108,5 @@ pub struct Program {
 
 
 pub struct Output {
-    pub lines: Vec<String>
+    pub body: Vec<String>
 }
