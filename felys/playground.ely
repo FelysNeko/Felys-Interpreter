@@ -4,10 +4,10 @@ let add = |x, y| {
 
 let sub = |x, y| x-y;
 
-let a = 11;
-let b = 19;
+let a = 0;
+let b = 0;
 
-if b {
+if b or true {
     if add(a, b) == 30 {
         render a + ' + ' + b + ' = 30';
     } elif a == 0 and b == 0 {

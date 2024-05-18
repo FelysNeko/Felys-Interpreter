@@ -197,7 +197,7 @@ impl Value {
         Value::new(VT::BOOLEAN, val.to_string())
     }
 
-    fn  and(&self, rval: Value) -> Result<Value, Error> {
+    fn and(&self, rval: Value) -> Result<Value, Error> {
         if self.parse_to_bool()? && rval.parse_to_bool()? {
             Ok(rval)
         } else {
@@ -208,7 +208,7 @@ impl Value {
     fn or(&self, rval: Value) -> Result<Value, Error> {
         if self.parse_to_bool()? {
             Ok(self.clone())
-        } else if self.parse_to_bool()? {
+        } else if rval.parse_to_bool()? {
             Ok(rval)
         } else {
             Value::new(VT::BOOLEAN, false.to_string())
