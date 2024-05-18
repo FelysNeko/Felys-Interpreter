@@ -1,5 +1,4 @@
 use crate::shared::{
-    TokenType as TT,
     Program,
     Error
 };
@@ -24,30 +23,4 @@ pub fn parse(input: String) -> Result<Program, Error> {
     }
 
     Ok(prog)
-}
-
-
-impl Lexer<'_> {
-    pub(super) fn eat(&mut self, t: TT) -> Result<(), Error>{
-        if let Some(tk) = self.token.pop() {
-            if tk.ttype != t {
-                Error::incorrect_next_token(t, tk.value)
-            } else {
-                Ok(())
-            }
-        } else {
-            Error::nothing_to_eat(t)
-        }
-    }
-}
-
-
-impl Error {
-    fn incorrect_next_token(e: TT, s: String) -> Result<(), Error> {
-        Err(Self { msg: format!("expect `{:?}`, but see `{}`", e, s) })
-    }
-
-    fn nothing_to_eat(e: TT) -> Result<(), Error> {
-        Err(Self { msg: format!("expect `{:?}`, but nothing to eat", e) })
-    }
 }

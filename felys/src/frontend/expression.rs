@@ -2,7 +2,6 @@ use crate::shared::{
     TokenType as TT,
     NodeType as NT,
     Error,
-    Token,
     Node,
 };
 use super::Lexer;
@@ -174,24 +173,9 @@ impl Lexer<'_> {
 }
 
 
-impl Node {
-    pub(super) fn from(tk: Token) -> Result<Self, Error> {
-        if let TT::NODE(ntype) = tk.ttype {
-            Ok(Self { ntype, value: tk.value, nodes: Vec::new() })
-        } else {
-            Error::invalid_token_type(tk.ttype)
-        }
-    }
-}
-
-
 impl Error {
     fn invalid_param(s: String) -> Result<Node, Error> {
         Err(Self { msg: format!("expect `)` or `,`, but see `{}`", s)})
-    }
-
-    fn invalid_token_type(t: TT) -> Result<Node, Error> {
-        Err(Self { msg: format!("cannot convert token {:?} to node", t) })
     }
 
     fn token_not_primary(v: &String) -> Result<Node, Error> {

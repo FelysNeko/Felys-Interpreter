@@ -64,8 +64,7 @@ impl Lexer<'_>{
         self.eat(TT::KEYWORD(KT::ELSE))?;
         let expr: Node = Node::always();
         let body: Vec<Statement> = self.parse_block()?;
-        let alter: Option<Box<Statement>> = None;
-        Statement::new(KT::ELSE, expr, body, alter)
+        Statement::new(KT::ELSE, expr, body, None)
     }
 
     fn parse_let(&mut self) -> Result<Statement, Error> {
@@ -82,42 +81,34 @@ impl Lexer<'_>{
         } else {
             return Error::stat_no_more_token();
         };
-        let alter: Option<Box<Statement>> = None;
-        Statement::new(KT::LET, expr, body, alter)
+        Statement::new(KT::LET, expr, body, None)
     }
 
     fn parse_while(&mut self) -> Result<Statement, Error> {
         self.eat(TT::KEYWORD(KT::WHILE))?;
         let expr: Node = self.parse_expression()?;
         let body: Vec<Statement> = self.parse_block()?;
-        let alter: Option<Box<Statement>> = None;
-        Statement::new(KT::WHILE, expr, body, alter)
+        Statement::new(KT::WHILE, expr, body, None)
     }
 
     fn parse_render(&mut self) -> Result<Statement, Error> {
         self.eat(TT::KEYWORD(KT::RENDER))?;
         let expr: Node = self.parse_expression()?;
-        let body: Vec<Statement> = Vec::new();
-        let alter: Option<Box<Statement>> = None;
         self.eat(TT::SEMICOL)?;
-        Statement::new(KT::RENDER, expr, body, alter)
+        Statement::new(KT::RENDER, expr, Vec::new(), None)
     }
 
     fn parse_return(&mut self) -> Result<Statement, Error> {
         self.eat(TT::KEYWORD(KT::RETURN))?;
         let expr: Node = self.parse_expression()?;
-        let body: Vec<Statement> = Vec::new();
-        let alter: Option<Box<Statement>> = None;
         self.eat(TT::SEMICOL)?;
-        Statement::new(KT::RETURN, expr, body, alter)
+        Statement::new(KT::RETURN, expr, Vec::new(), None)
     }
 
     fn parse_expr_to_stat(&mut self) -> Result<Statement, Error> {
         let expr: Node = self.parse_expression()?;
-        let body: Vec<Statement> = Vec::new();
-        let alter: Option<Box<Statement>> = None;
         self.eat(TT::SEMICOL)?;
-        Statement::new(KT::NULL, expr, body, alter)
+        Statement::new(KT::NULL, expr, Vec::new(), None)
     }
 }
 
@@ -196,18 +187,6 @@ impl Lexer<'_> {
         } else {
             return Error::node_no_more_token()
         }
-    }
-}
-
-
-impl Statement {
-    fn new(
-        ktype: KT,
-        expr: Node,
-        body: Vec<Statement>,
-        alter: Option<Box<Statement>>
-    ) -> Result<Self, Error> {
-        Ok(Self { ktype, expr, body, alter })
     }
 }
 

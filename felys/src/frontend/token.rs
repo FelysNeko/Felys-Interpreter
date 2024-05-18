@@ -54,7 +54,7 @@ impl Lexer<'_> {
     }
 
     fn scan_string(&mut self) -> Result<Token, Error> {
-        let mut token: Token = Token::string();
+        let mut token: Token = Token::from(VT::STRING);
 
         let sos: char = match self.chars.next() {
             Some(ch) => ch,
@@ -73,7 +73,7 @@ impl Lexer<'_> {
     }
 
     fn scan_number(&mut self) -> Result<Token, Error> {
-        let mut token: Token = Token::number();
+        let mut token: Token = Token::from(VT::NUMBER);
         let mut dot: bool = false;
 
         while let Some(ch) = self.chars.peek() {
@@ -96,7 +96,7 @@ impl Lexer<'_> {
     }
 
     fn scan_ident_n_reserved(&mut self) -> Result<Token, Error> {
-        let mut token: Token = Token::identifier();
+        let mut token: Token = Token::from(VT::IDENT);
 
         while let Some(ch) = self.chars.peek() {
             if ch.is_ascii_alphanumeric() || *ch == '_' {
@@ -127,7 +127,7 @@ impl Lexer<'_> {
 
     fn scan_simple_binoptr(&mut self) -> Result<Token, Error> {
         if let Some(ch) = self.chars.next() {
-            let mut token: Token = Token::binoptr();
+            let mut token: Token = Token::from(NT::BINOPTR);
             token.value.push(ch);
             Ok(token)
         } else {
@@ -142,7 +142,7 @@ impl Lexer<'_> {
         };
 
         if let Some(ch) = self.chars.next() {
-            let mut token: Token = Token::unaoptr();
+            let mut token: Token = Token::from(NT::UNAOPTR);
             token.value.push(ch);
             token.ttype = match prev {
                 TT::NODE(NT::VALUE(_)) |
@@ -158,7 +158,7 @@ impl Lexer<'_> {
 
     fn scan_cmp_binoptr(&mut self) -> Result<Token, Error> {
         if let Some(ch) = self.chars.next() {
-            let mut token: Token = Token::binoptr();
+            let mut token: Token = Token::from(NT::BINOPTR);
             token.value.push(ch);
 
             if let Some(ch) = self.chars.peek() {
@@ -175,7 +175,7 @@ impl Lexer<'_> {
 
     fn scan_neg_unaoptr(&mut self) -> Result<Token, Error> {
         if let Some(ch) = self.chars.next() {
-            let mut token: Token = Token::unaoptr();
+            let mut token: Token = Token::from(NT::UNAOPTR);
             token.value.push(ch);
 
             if let Some(ch) = self.chars.peek() {
@@ -192,7 +192,7 @@ impl Lexer<'_> {
 
     fn scan_left_paren(&mut self) -> Result<Token, Error> {
         if let Some(ch) = self.chars.next() {
-            let mut token: Token = Token::lparen();
+            let mut token: Token = Token::from(TT::LPAREN);
             token.value.push(ch);
 
             if let Some(tk) = self.token.last_mut() {
@@ -218,39 +218,12 @@ impl Lexer<'_> {
                 '|' => TT::PIPE,
                 _ => return Error::invalid_single_token(ch)
             };
-            let mut token: Token = Token::new(ttype);
+            let mut token: Token = Token::from(ttype);
             token.value.push(ch);
             Ok(token)
         } else {
             Error::no_more_char()
         }
-    }
-}
-
-
-impl Token {
-    fn lparen() -> Self {
-        Self::new(TT::LPAREN)
-    }
-
-    fn unaoptr() -> Self {
-        Self::new(TT::NODE(NT::UNAOPTR))
-    }
-
-    fn binoptr() -> Self {
-        Self::new(TT::NODE(NT::BINOPTR))
-    }
-
-    fn identifier() -> Self {
-        Self::new(TT::NODE(NT::VALUE(VT::IDENT)))
-    }
-
-    fn number() -> Self {
-        Self::new(TT::NODE(NT::VALUE(VT::NUMBER)))
-    }
-
-    fn string() -> Self {
-        Self::new(TT::NODE(NT::VALUE(VT::STRING)))
     }
 }
 
