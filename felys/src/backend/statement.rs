@@ -1,6 +1,8 @@
 use crate::shared::{
     KeywordType as KT,
+    NodeType as NT,
     Statement,
+    Callable,
     Environ,
     Output,
     Error,
@@ -23,7 +25,17 @@ impl Statement {
     }
 
     fn run_let(&self, env: &mut Environ, out: &mut Output) -> Result<Option<Value>, Error> {
-        todo!()
+        if self.expr.ntype == NT::CALLABLE {
+            let args: Vec<String> = self.expr.nodes.iter().map(|n| n.value.clone()).collect();
+            let func: Callable = Callable::new(args, self.body.clone());
+            env.load(&self.expr.value, func)?;
+        } else {
+            if let Some(stat) = self.body.first() {
+                let result: Value = stat.expr.eval(env, out)?;
+                env.declare(&self.expr.value, result)?;
+            }
+        }
+        Ok(None)
     }
     
     fn run_while(&self, env: &mut Environ, out: &mut Output) -> Result<Option<Value>, Error> {
@@ -84,5 +96,12 @@ impl Statement {
         }
         env.shrink();
         Ok(None)
+    }
+}
+
+
+impl Callable {
+    fn new(args: Vec<String>, body: Vec<Statement>) -> Self {
+        Self { param: args, body }
     }
 }

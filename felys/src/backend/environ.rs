@@ -47,7 +47,7 @@ impl Environ {
         Error::get_dne_var(k)
     }
 
-    pub(super) fn load(&mut self, k:String, v:Callable) -> Result<(), Error> {
+    pub(super) fn load(&mut self, k:&String, v:Callable) -> Result<(), Error> {
         if let Some(scope) = self.body.last_mut() {
             match scope.callable.insert(k.clone(), v) {
                 Some(_) => Error::func_already_exist(k),
@@ -58,9 +58,9 @@ impl Environ {
         }
     }
 
-    pub(super) fn call(&self, k:String, args:Vec<Value>, out: &mut Output) -> Result<Value, Error> {
+    pub(super) fn call(&self, k:&String, args:Vec<Value>, out: &mut Output) -> Result<Value, Error> {
         for scope in self.body.iter().rev() {
-            if let Some(c) = scope.callable.get(&k) {
+            if let Some(c) = scope.callable.get(k) {
                 return c.call(args, out);
             }
         }
@@ -86,11 +86,11 @@ impl Error {
         Err(Self { msg: format!("cannot get undeclared variable `{}`", s)})
     }
 
-    fn func_already_exist(s: String) -> Result<(), Error> {
+    fn func_already_exist(s: &String) -> Result<(), Error> {
         Err(Self { msg: format!("callable `{}` already exist", s)})
     }
 
-    fn call_dne_func(s: String) -> Result<Value, Error> {
+    fn call_dne_func(s: &String) -> Result<Value, Error> {
         Err(Self { msg: format!("cannot call undeclared callable `{}`", s)})
     }
 }

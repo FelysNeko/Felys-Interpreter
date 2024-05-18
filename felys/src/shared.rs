@@ -54,7 +54,7 @@ pub struct Token {
 }
 
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Node {
     pub ntype: NodeType,
     pub value: String,
@@ -62,7 +62,7 @@ pub struct Node {
 }
 
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Statement {
     pub ktype: KeywordType,
     pub expr: Node,

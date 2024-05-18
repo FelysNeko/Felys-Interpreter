@@ -8,6 +8,9 @@ use crate::shared::{
     Node
 };
 
+// impl Try for std::iter::Map<std::slice::Iter<'_, Node>> {
+    
+// }
 
 impl Node {
     pub(super) fn eval(&self, env: &mut Environ, out: &mut Output) -> Result<Value, Error> {
@@ -15,8 +18,17 @@ impl Node {
             NT::VALUE(_) => self.to_value(env),
             NT::BINOPTR => self.eval_binoptr(env, out),
             NT::UNAOPTR => self.eval_unaoptr(env, out),
-            NT::CALLABLE => todo!(),
+            NT::CALLABLE => self.call(env, out),
         }
+    }
+
+    fn call(&self, env: &mut Environ, out: &mut Output) -> Result<Value, Error> {
+        let mut args: Vec<Value> = Vec::new();
+        for param in self.nodes.iter() {
+            let val: Value = param.eval(env, out)?;
+            args.push(val);
+        }
+        env.call(&self.value, args, out)
     }
 
     fn to_value(&self, env: &mut Environ) -> Result<Value, Error> {
@@ -122,12 +134,17 @@ impl Value {
     }
 
     fn add(&self, rval: Value) -> Result<Value, Error> {
-        let val: String = match (&self.vtype, &rval.vtype) {
+        match (&self.vtype, &rval.vtype) {
             (VT::STRING, _) |
-            (_, VT::STRING) => self.value.clone() + &rval.value.clone(),
-            _ => (self.parse_to_f64()? + rval.parse_to_f64()?).to_string()
-        };
-        Value::new(VT::NUMBER, val)
+            (_, VT::STRING) => {
+                let val: String = self.value.clone() + &rval.value.clone();
+                Value::new(VT::STRING, val)
+            },
+            _ => {
+                let val: String = (self.parse_to_f64()? + rval.parse_to_f64()?).to_string();
+                Value::new(VT::NUMBER, val)
+            }
+        }
     }
 
     fn sub(&self, rval: Value) -> Result<Value, Error> {

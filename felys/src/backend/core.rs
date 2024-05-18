@@ -31,6 +31,7 @@ impl Program {
     }
 }
 
+
 impl Output {
     fn new() -> Self {
         Self { lines: Vec::new() }
