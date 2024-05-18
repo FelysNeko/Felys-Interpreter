@@ -1,3 +1,5 @@
+mod general;
+
 use std::collections::HashMap;
 
 
@@ -100,7 +102,6 @@ pub struct Error {
 }
 
 
-#[derive(Debug)]
 pub struct Program {
     pub body: Vec<Statement>
 }

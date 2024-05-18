@@ -1,12 +1,9 @@
-use std::collections::HashMap;
-
 use crate::shared::{
     ValueType as VT,
     Program,
     Environ,
     Output,
     Value,
-    Scope,
     Error
 };
 
@@ -28,37 +25,5 @@ impl Program {
         }
 
         Ok(out)
-    }
-}
-
-
-impl Output {
-    fn new() -> Self {
-        Self { lines: Vec::new() }
-    }
-
-    pub fn render(&self) -> String {
-        return self.lines.join("\n")
-    }
-}
-
-
-impl Scope {
-    pub(super) fn new(args: Vec<(String, Value)>) -> Self {
-        let mut variable: HashMap<String, Value> = HashMap::new();
-        for (k, v) in args {
-            variable.insert(k, v);
-        }
-        Self {
-            variable,
-            callable: HashMap::new()
-        }
-    }
-}
-
-
-impl Environ {
-    pub(super) fn new(args: Vec<(String, Value)>) -> Self {
-        Self { body: vec![Scope::new(args)] }
     }
 }
