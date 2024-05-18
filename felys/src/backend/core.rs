@@ -37,7 +37,7 @@ impl Output {
     }
 
     pub fn render(&self) -> String {
-        todo!()
+        return self.lines.join("\n")
     }
 }
 

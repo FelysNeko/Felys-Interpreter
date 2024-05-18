@@ -32,7 +32,7 @@ impl Lexer<'_> {
                 '/' |
                 '%' => self.scan_simple_binoptr()?,
                 '+' |
-                '-' => self.scan_add_binoptr()?,
+                '-' => self.scan_add_unaoptr()?,
                 '>' |
                 '<' |
                 '=' => self.scan_cmp_binoptr()?,
@@ -135,19 +135,19 @@ impl Lexer<'_> {
         }
     }
 
-    fn scan_add_binoptr(&mut self) -> Result<Token, Error> {
+    fn scan_add_unaoptr(&mut self) -> Result<Token, Error> {
         let prev: TT = match self.token.last() {
             Some(tk) => tk.ttype,
             None => TT::LPAREN
         };
 
         if let Some(ch) = self.chars.next() {
-            let mut token: Token = Token::binoptr();
+            let mut token: Token = Token::unaoptr();
             token.value.push(ch);
             token.ttype = match prev {
-                TT::NODE(NT::UNAOPTR) |
-                TT::NODE(NT::BINOPTR) |
-                TT::LPAREN => TT::NODE(NT::UNAOPTR),
+                TT::NODE(NT::VALUE(_)) |
+                TT::NODE(NT::CALLABLE) |
+                TT::RPAREN => TT::NODE(NT::BINOPTR),
                 _ => token.ttype
             };
             Ok(token)

@@ -14,20 +14,20 @@ impl Statement {
             KT::IF => self.run_if(env, out),
             KT::ELIF => self.run_elif(env, out),
             KT::ELSE => self.run_else(env, out),
-            KT::NULL => self.run_expression(env),
+            KT::NULL => self.run_expression(env, out),
             KT::RENDER => self.run_render(env, out),
-            KT::RETURN => self.run_return(env),
-            KT::LET => self.run_let(env),
+            KT::RETURN => self.run_return(env, out),
+            KT::LET => self.run_let(env, out),
             KT::WHILE => self.run_while(env, out)
         }
     }
 
-    fn run_let(&self, env: &mut Environ) -> Result<Option<Value>, Error> {
+    fn run_let(&self, env: &mut Environ, out: &mut Output) -> Result<Option<Value>, Error> {
         todo!()
     }
     
     fn run_while(&self, env: &mut Environ, out: &mut Output) -> Result<Option<Value>, Error> {
-        while self.expr.eval(env)?.parse_to_bool()? {
+        while self.expr.eval(env, out)?.parse_to_bool()? {
             if let Some(result) = self.run_block(env, out)? {
                 return Ok(Some(result));
             }
@@ -36,7 +36,7 @@ impl Statement {
     }
 
     fn run_if(&self, env: &mut Environ, out: &mut Output) -> Result<Option<Value>, Error> {
-        if self.expr.eval(env)?.parse_to_bool()? {
+        if self.expr.eval(env, out)?.parse_to_bool()? {
             self.run_block(env, out)
         } else if let Some(stat) = &self.alter {
             stat.run(env, out)
@@ -46,7 +46,7 @@ impl Statement {
     }
 
     fn run_elif(&self, env: &mut Environ, out: &mut Output) -> Result<Option<Value>, Error> {
-        if self.expr.eval(env)?.parse_to_bool()? {
+        if self.expr.eval(env, out)?.parse_to_bool()? {
             self.run_block(env, out)
         } else if let Some(stat) = &self.alter {
             stat.run(env, out)
@@ -59,19 +59,19 @@ impl Statement {
         self.run_block(env, out)
     }
 
-    fn run_expression(&self, env: &mut Environ) -> Result<Option<Value>, Error> {
-        let _ = self.expr.eval(env);
+    fn run_expression(&self, env: &mut Environ, out: &mut Output) -> Result<Option<Value>, Error> {
+        let _ = self.expr.eval(env, out);
         Ok(None)
     }
 
     fn run_render(&self, env: &mut Environ, out: &mut Output) -> Result<Option<Value>, Error> {
-        let result: Value = self.expr.eval(env)?;
+        let result: Value = self.expr.eval(env, out)?;
         out.lines.push(result.value);
         Ok(None)
     }
 
-    fn run_return(&self, env: &mut Environ) -> Result<Option<Value>, Error> {
-        let result: Value = self.expr.eval(env)?;
+    fn run_return(&self, env: &mut Environ, out: &mut Output) -> Result<Option<Value>, Error> {
+        let result: Value = self.expr.eval(env, out)?;
         Ok(Some(result))
     }
 
