@@ -84,7 +84,7 @@ impl Callable {
         ctr: &mut usize
     ) -> Result<Value, Error> {
         if self.args.len() != args.len() {
-            return Error::missing_parameter();
+            return Error::bad_parameter();
         }
 
         let args: Vec<(String, Value)> = self.args.clone()
@@ -130,7 +130,7 @@ impl Error {
         Err(Self { msg: format!("cannot call undeclared callable `{}`", s)})
     }
 
-    fn missing_parameter() -> Result<Value, Error> {
-        Err(Self { msg: format!("function missing parameter")})
+    fn bad_parameter() -> Result<Value, Error> {
+        Err(Self { msg: format!("number of parameters is incorrect")})
     }
 }

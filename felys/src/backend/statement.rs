@@ -114,7 +114,7 @@ impl Statement {
         out: &mut Output,
         ctr: &mut usize
     ) -> Result<Option<Value>, Error> {
-        let _ = self.expr.eval(env, out, ctr);
+        self.expr.eval(env, out, ctr)?;
         Ok(None)
     }
 

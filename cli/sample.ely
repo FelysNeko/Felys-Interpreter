@@ -1,1 +1,5 @@
-render 'hello world';
+let greet = |x| {
+    render 'hello ' + x + '!';
+}
+
+greet('world');
