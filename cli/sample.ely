@@ -1,5 +1,0 @@
-let greet = |x| {
-    render 'hello ' + x + '!';
-}
-
-greet('world');
