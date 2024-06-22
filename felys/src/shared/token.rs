@@ -1,5 +1,4 @@
 pub enum KeywordType {
-    LET,
     WHILE,
     IF,
     ELIF,
