@@ -7,13 +7,13 @@ use crate::shared::token::{
 pub struct BinaryNode {
     pub optr: BinoptrType,
     pub left: Box<Node>,
-    pub right: Box<Node>,
+    pub right: Box<Node>
 }
 
 pub struct UnaryNode {
     pub optr: UnaoptrType,
     pub left: Box<Node>,
-    pub right: Box<Node>,
+    pub right: Box<Node>
 }
 
 pub struct IdentifierNode {
@@ -27,8 +27,8 @@ pub struct FunctionNode {
 }
 
 pub enum Node {
-    BIN(BinaryNode),
-    UNA(UnaryNode),
-    FNC(FunctionNode),
-    IDN(IdentifierNode)
+    Bin(BinaryNode),
+    Una(UnaryNode),
+    Fnc(FunctionNode),
+    Idn(IdentifierNode)
 }

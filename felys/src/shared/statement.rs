@@ -34,10 +34,10 @@ pub struct SimpleStmt {
 }
 
 pub enum Statement {
-    IF(IfStmt),
-    ELIF(ElifStmt),
-    ELSE(ElseStmt),
-    WHILE(WhileStmt),
-    RETURN(ReturnStmt),
-    SIMPLE(SimpleStmt)
+    If(IfStmt),
+    Elif(ElifStmt),
+    Else(ElseStmt),
+    While(WhileStmt),
+    Return(ReturnStmt),
+    Simple(SimpleStmt)
 }

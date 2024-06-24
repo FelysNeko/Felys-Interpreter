@@ -1,59 +1,73 @@
 pub enum KeywordType {
-    WHILE,
-    IF,
-    ELIF,
-    ELSE,
-    RETURN,
+    While,
+    If,
+    Elif,
+    Else,
+    Return,
 }
 
 pub enum ValueType {
-    BOOLEAN,
-    STRING,
-    NUMBER,
-    NONE
+    Boolean,
+    String,
+    Number,
+    None
 }
 
 pub enum BinoptrType {
-    ADD,
-    SUB,
-    MUL,
-    DIV,
-    MOD,
-    EQ,
-    NE,
-    LGR,
-    SMR,
-    LEQ,
-    SEQ,
-    ARR
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Mod,
+    Ade,
+    Sue,
+    Mue,
+    Die,
+    Moe,
+    Eq,
+    Ne,
+    Gt,
+    Lt,
+    Ge,
+    Le,
+    And,
+    Xor,
+    Or,
+    Arr,
+    Asn
 }
 
 pub enum UnaoptrType {
-    NOT,
-    POS,
-    NEG
+    Not,
+    Pos,
+    Neg
 }
 
 pub enum SymbolType {
-    LBRACE,
-    RBRACE,
-    LPAREN,
-    RPAREN,
-    SEMICOL,
-    COMMA
+    LBrace,
+    RBrace,
+    LParen,
+    RParen,
+    Semicol,
+    Comma
 }
 
 pub enum TokenType {
-    VAL(ValueType),
-    KEY(KeywordType),
-    BIN(BinoptrType),
-    UNA(UnaoptrType),
-    SYM(SymbolType),
-    IDENTIFIER
+    Val(ValueType),
+    Key(KeywordType),
+    Bin(BinoptrType),
+    Una(UnaoptrType),
+    Sym(SymbolType),
+    Identifier
 }
 
 pub struct Token {
     pub kind: TokenType,
     pub value: String,
-    pub loc: (usize, usize)
+}
+
+impl Token {
+    pub fn new(t: TokenType, v: String) -> Self {
+        Self { kind: t, value: v }
+    }
 }

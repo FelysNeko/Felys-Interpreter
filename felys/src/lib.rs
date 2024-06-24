@@ -1,9 +1,13 @@
+use crate::shared::Program;
+
 mod backend;
 mod frontend;
 mod shared;
 
+
 pub fn exec(code: String) -> String {
-    code
+    let _ = Program::load(code);
+    todo!()
 }
 
 #[cfg(test)]
