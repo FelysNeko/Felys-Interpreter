@@ -54,6 +54,7 @@ impl Lexer<'_> {
                 ')' |
                 '{' |
                 '}' |
+                '|' |
                 ';' |
                 ',' => self.scan_symbol()?,
                 _ => return Error::lexer_invalid_char(ch)
@@ -104,7 +105,7 @@ impl Lexer<'_> {
                 break;
             }
         }
-        Ok(Token::new(TT::Val(VT::String), value))
+        Ok(Token::new(TT::Val(VT::Number), value))
     }
 
     fn scan_ident(&mut self) -> Result<Token, Error> {
@@ -223,7 +224,7 @@ impl Lexer<'_> {
             "<" => TT::Bin(BT::Lt),
             "=" => TT::Bin(BT::Asn),
             "!" => TT::Una(UT::Not),
-            ">=" => TT::Bin(BT::Le),
+            ">=" => TT::Bin(BT::Ge),
             "<=" => TT::Bin(BT::Le),
             "==" => TT::Bin(BT::Eq),
             "!=" => TT::Bin(BT::Ne),
@@ -246,6 +247,7 @@ impl Lexer<'_> {
             '{' => TT::Sym(ST::LBrace),
             '}' => TT::Sym(ST::RBrace),
             ';' => TT::Sym(ST::Semicol),
+            '|' => TT::Sym(ST::Pipe),
             ',' => TT::Sym(ST::Comma),
             ch => return Error::unknown_symbol(ch)
         };

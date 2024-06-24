@@ -49,7 +49,8 @@ pub enum SymbolType {
     LParen,
     RParen,
     Semicol,
-    Comma
+    Comma,
+    Pipe
 }
 
 pub enum TokenType {
