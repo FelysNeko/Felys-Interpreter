@@ -1,4 +1,3 @@
-use crate::frontend::program::Eat;
 use crate::shared::token::{BT, ST, TT};
 use crate::shared::error::Error;
 use crate::shared::expression::{BinaryNode, FunctionNode, IdentifierNode, LiteralNode, Node, UnaryNode};
@@ -158,7 +157,7 @@ impl Program {
     }
     
     fn parse_parameter(&mut self) -> Result<Vec<Node>, Error> {
-        self.eat(ST::LParen)?;
+        self.expect(ST::LParen)?;
 
         let mut param = Vec::new();
         while let Some(token) = self.tokens.last() {
@@ -184,7 +183,7 @@ impl Program {
     }
 
     fn parse_function(&mut self) -> Result<Node, Error> {
-        self.eat(ST::Pipe)?;
+        self.expect(ST::Pipe)?;
         
         let mut param = Vec::new();
         while let Some(token) = self.tokens.pop() {
@@ -219,9 +218,9 @@ impl Program {
     }
 
     fn parse_lparen(&mut self) -> Result<Node, Error> {
-        self.eat(ST::LParen)?;
+        self.expect(ST::LParen)?;
         let inner = self.parse_expression()?;
-        self.eat(ST::RParen)?;
+        self.expect(ST::RParen)?;
         Ok(inner)
     }
 }

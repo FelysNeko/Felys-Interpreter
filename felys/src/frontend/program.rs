@@ -11,13 +11,8 @@ impl Program {
 }
 
 
-pub trait Eat<T> {
-    fn eat(&mut self, t: T) -> Result<(), Error>;
-}
-
-
-impl Eat<ST> for Program {
-    fn eat(&mut self, t: ST) -> Result<(), Error> {
+impl  Program {
+    pub(super) fn expect(&mut self, t: ST) -> Result<(), Error> {
         if let Some(token) = self.tokens.pop() {
             if token.kind != TT::Sym(t) {
                 Error::eat_wrong_token(token.value)?;
@@ -31,7 +26,7 @@ impl Eat<ST> for Program {
 
 
 impl Error {
-    pub fn no_more_token() -> Result<Node, Error> {
+    pub(super) fn no_more_token() -> Result<Node, Error> {
         Err(Self { body: "no more token".to_string() })
     }
 
