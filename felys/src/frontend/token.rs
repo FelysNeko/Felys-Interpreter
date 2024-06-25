@@ -1,6 +1,7 @@
 use std::iter::Peekable;
 use std::str::Chars;
-use crate::shared::{Error, Token, BT, KT, ST, TT, UT, VT};
+use crate::shared::token::{Token, BT, KT, ST, TT, UT, VT};
+use crate::shared::error::Error;
 
 
 pub fn tokenize(c: String) -> Result<Vec<Token>, Error> {
@@ -12,15 +13,17 @@ pub fn tokenize(c: String) -> Result<Vec<Token>, Error> {
     while let Some(tk) = lexer.scan_next()? {
         lexer.buf.push(tk)
     }
-    
+
     lexer.buf.reverse();
     Ok(lexer.buf)
 }
+
 
 struct Lexer<'a> {
     chars: Peekable<Chars<'a>>,
     buf: Vec<Token>
 }
+
 
 impl Lexer<'_> {
     fn scan_next(&mut self) -> Result<Option<Token>, Error> {
@@ -183,10 +186,10 @@ impl Lexer<'_> {
             }
         }
 
-        let binary = matches!(self.buf.last(), 
-            Some(prev) if matches!(prev.kind, 
-                TT::Val(_) | 
-                TT::Sym(ST::RParen) | 
+        let binary = matches!(self.buf.last(),
+            Some(prev) if matches!(prev.kind,
+                TT::Val(_) |
+                TT::Sym(ST::RParen) |
                 TT::Identifier
             )
         );
@@ -240,7 +243,7 @@ impl Lexer<'_> {
             Some(ch) => ch,
             None => return Error::lexer_reaches_end()
         };
-        
+
         let tt = match ch {
             '(' => TT::Sym(ST::LParen),
             ')' => TT::Sym(ST::RParen),
@@ -255,6 +258,7 @@ impl Lexer<'_> {
         Ok(Token::new(tt, ch.to_string()))
     }
 }
+
 
 impl Error {
     fn lexer_invalid_char(ch: &char) -> Result<Option<Token>, Error> {

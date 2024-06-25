@@ -1,11 +1,18 @@
-use crate::shared::{Error, Program, Statement};
+use crate::shared::error::Error;
+use crate::shared::program::Program;
+use crate::shared::statement::{Block, Statement};
+
 
 impl Program {
     pub fn consume(&mut self) -> Result<Statement, Error> {
         self.parse_statement()
     }
     
-    fn parse_statement(&mut self) -> Result<Statement, Error> {
+    pub(super) fn parse_statement(&mut self) -> Result<Statement, Error> {
+        todo!()
+    }
+
+    pub(super) fn parse_block(&mut self) -> Result<Block, Error> {
         todo!()
     }
 
@@ -30,10 +37,6 @@ impl Program {
     }
 
     fn parse_simple(&mut self) -> Result<Statement, Error> {
-        todo!()
-    }
-
-    fn parse_block(&mut self) -> Result<Vec<Statement>, Error> {
         todo!()
     }
 }

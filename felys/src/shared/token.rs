@@ -1,3 +1,4 @@
+#[derive(PartialEq)]
 pub enum KeywordType {
     While,
     If,
@@ -5,14 +6,20 @@ pub enum KeywordType {
     Else,
     Return,
 }
+pub type KT = KeywordType;
 
+
+#[derive(PartialEq)]
 pub enum ValueType {
     Boolean,
     String,
     Number,
     None
 }
+pub type VT = ValueType;
 
+
+#[derive(PartialEq)]
 pub enum BinoptrType {
     Add,
     Sub,
@@ -36,13 +43,18 @@ pub enum BinoptrType {
     Arr,
     Asn
 }
+pub type ST = SymbolType;
 
+#[derive(PartialEq)]
 pub enum UnaoptrType {
     Not,
     Pos,
     Neg
 }
+pub type BT = BinoptrType;
 
+
+#[derive(PartialEq)]
 pub enum SymbolType {
     LBrace,
     RBrace,
@@ -52,7 +64,10 @@ pub enum SymbolType {
     Comma,
     Pipe
 }
+pub type UT = UnaoptrType;
 
+
+#[derive(PartialEq)]
 pub enum TokenType {
     Val(ValueType),
     Key(KeywordType),
@@ -61,11 +76,14 @@ pub enum TokenType {
     Sym(SymbolType),
     Identifier
 }
+pub type TT = TokenType;
+
 
 pub struct Token {
     pub kind: TokenType,
     pub value: String,
 }
+
 
 impl Token {
     pub fn new(t: TokenType, v: String) -> Self {

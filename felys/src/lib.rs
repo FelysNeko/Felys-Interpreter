@@ -1,4 +1,4 @@
-use crate::shared::Program;
+use crate::shared::program::Program;
 
 mod backend;
 mod frontend;

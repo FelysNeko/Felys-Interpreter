@@ -1,8 +1,10 @@
 use crate::shared::expression::Node;
 
+
 pub struct Block {
     pub body: Vec<Statement>
 }
+
 
 pub struct IfStmt {
     pub expr: Node,
@@ -10,28 +12,34 @@ pub struct IfStmt {
     pub alter: Option<Box<Statement>>
 }
 
+
 pub struct ElifStmt {
     pub expr: Node,
     pub body: Block,
     pub alter: Option<Box<Statement>>
 }
 
+
 pub struct ElseStmt {
     pub body: Block,
 }
+
 
 pub struct WhileStmt {
     pub expr: Node,
     pub body: Block,
 }
 
+
 pub struct ReturnStmt {
     pub expr: Node,
 }
 
+
 pub struct SimpleStmt {
     pub expr: Node,
 }
+
 
 pub enum Statement {
     If(IfStmt),
@@ -40,4 +48,11 @@ pub enum Statement {
     While(WhileStmt),
     Return(ReturnStmt),
     Simple(SimpleStmt)
+}
+
+
+impl From<Statement> for Block {
+    fn from(stmt: Statement) -> Self {
+        Self { body: vec![stmt] }
+    }
 }

@@ -1,4 +1,8 @@
-use crate::shared::{BinaryNode, BT, Error, Node, Program, ST, TT, UnaryNode};
+use crate::shared::token::{BT, ST, TT};
+use crate::shared::error::Error;
+use crate::shared::expression::{BinaryNode, FunctionNode, IdentifierNode, LiteralNode, Node, UnaryNode};
+use crate::shared::program::{Eat, Program};
+
 
 impl Program {
     pub(super) fn parse_expression(&mut self) -> Result<Node, Error> {
@@ -124,28 +128,118 @@ impl Program {
     }
 
     fn parse_literal(&mut self) -> Result<Node, Error> {
-        todo!()
+        if let Some(token) = self.tokens.pop() {
+            LiteralNode::build(token.kind, token.value)
+        } else {
+            Error::no_more_token()
+        }
     }
     
     fn parse_identifier(&mut self) -> Result<Node, Error> {
-        todo!()
+        let ident = match self.tokens.pop() {
+            Some(token) => token.value,
+            None => return Error::no_more_token()
+        };
+        
+        let mut call = false;
+        let param = if let Some(token) = self.tokens.last() {
+            if token.kind == TT::Sym(ST::LParen) {
+                call = true;
+                self.parse_parameter()?
+            } else {
+                Vec::new()
+            }
+        } else {
+            Vec::new()
+        };
+        
+        IdentifierNode::build(ident, call, param)
+    }
+    
+    fn parse_parameter(&mut self) -> Result<Vec<Node>, Error> {
+        self.eat(ST::LParen)?;
+
+        let mut param = Vec::new();
+        while let Some(token) = self.tokens.last() {
+            if token.kind != TT::Sym(ST::RParen) {
+                let node = self.parse_expression()?;
+                param.push(node);
+            } else {
+                break;
+            }
+            
+            if let Some(sym) = self.tokens.pop() {
+                match sym.kind {
+                    TT::Sym(ST::Comma) => (),
+                    TT::Sym(ST::RParen) => break,
+                    _ => return Error::expect_comma_rparen()
+                }
+            } else {
+                return Error::expect_comma_rparen();
+            }
+        }
+        
+        Ok(param)
     }
 
     fn parse_function(&mut self) -> Result<Node, Error> {
-        todo!()
+        self.eat(ST::Pipe)?;
+        
+        let mut param = Vec::new();
+        while let Some(token) = self.tokens.pop() {
+            match token.kind {
+                TT::Identifier => param.push(token.value),
+                TT::Sym(ST::Pipe) => break,
+                _ => return Error::unexpected_param(token.value)
+            }
+
+            if let Some(sym) = self.tokens.pop() {
+                match sym.kind {
+                    TT::Sym(ST::Comma) => (),
+                    TT::Sym(ST::Pipe) => break,
+                    _ => return Error::expect_comma_pipe()
+                }
+            } else {
+                return Error::expect_comma_pipe();
+            }
+        }
+        
+        let block = if let Some(token) = self.tokens.last() {
+            if token.kind == TT::Sym(ST::LBrace) {
+                self.parse_block()?
+            } else {
+                self.parse_statement()?.into()
+            }
+        } else {
+            return Error::no_more_token();
+        };
+        
+        FunctionNode::build(param, block)
     }
 
     fn parse_lparen(&mut self) -> Result<Node, Error> {
-        todo!()
+        self.eat(ST::LParen)?;
+        let inner = self.parse_expression()?;
+        self.eat(ST::RParen)?;
+        Ok(inner)
     }
 }
+
 
 impl Error {
     fn token_not_primary(s: &String) -> Result<Node, Error> {
         Err(Self { body: format!("token `{}` is not primary", s) })
     }
+
+    fn unexpected_param(s: String) -> Result<Node, Error> {
+        Err(Self { body: format!("token `{}` cannot be a parameter", s) })
+    }
     
-    fn no_more_token() -> Result<Node, Error> {
-        Err(Self { body: "no more token".to_string() })
+    fn expect_comma_rparen() -> Result<Vec<Node>, Error> {
+        Err(Self { body: "expect `,` or `)`".to_string() })
+    }
+
+    fn expect_comma_pipe() -> Result<Node, Error> {
+        Err(Self { body: "expect `,` or `|`".to_string() })
     }
 }
