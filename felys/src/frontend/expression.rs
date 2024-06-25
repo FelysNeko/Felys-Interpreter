@@ -1,7 +1,8 @@
+use crate::frontend::program::Eat;
 use crate::shared::token::{BT, ST, TT};
 use crate::shared::error::Error;
 use crate::shared::expression::{BinaryNode, FunctionNode, IdentifierNode, LiteralNode, Node, UnaryNode};
-use crate::shared::program::{Eat, Program};
+use crate::shared::program::Program;
 
 
 impl Program {
