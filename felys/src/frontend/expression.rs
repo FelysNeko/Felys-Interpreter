@@ -118,7 +118,7 @@ impl Program {
             match token.kind {
                 TT::Val(_) => self.parse_literal(),
                 TT::Identifier => self.parse_identifier(),
-                TT::Sym(ST::LParen) => self.parse_lparen(),
+                TT::Sym(ST::LParen) => self.parse_parentheses(),
                 TT::Sym(ST::Pipe) => self.parse_function(),
                 _ => Error::token_not_primary(&token.value)
             }
@@ -217,7 +217,7 @@ impl Program {
         FunctionNode::build(param, block)
     }
 
-    fn parse_lparen(&mut self) -> Result<Node, Error> {
+    fn parse_parentheses(&mut self) -> Result<Node, Error> {
         self.expect(ST::LParen)?;
         let inner = self.parse_expression()?;
         self.expect(ST::RParen)?;
