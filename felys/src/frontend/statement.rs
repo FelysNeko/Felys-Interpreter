@@ -6,9 +6,8 @@ use crate::shared::token::{KT, ST, TT};
 
 
 impl Program {
-    pub fn consume(&mut self) -> Result<(), Error> {
-        self.worker = self.parse_statement()?;
-        Ok(())
+    pub fn consume(&mut self) -> Result<Option<Statement>, Error> {
+        self.parse_statement()
     }
     
     pub(super) fn parse_statement(&mut self) -> Result<Option<Statement>, Error> {
@@ -86,7 +85,7 @@ impl Program {
         ReturnStmt::build(expr)
     }
 
-    pub fn parse_simple(&mut self) -> Result<Statement, Error> {
+    fn parse_simple(&mut self) -> Result<Statement, Error> {
         let expr = self.parse_expression()?;
         self.eat(ST::Semicol)?;
         SimpleStmt::build(expr)

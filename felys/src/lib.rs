@@ -6,15 +6,10 @@ mod shared;
 
 
 pub fn exec(code: String) -> String {
-    let mut main = match Program::load(code) {
+    let main = match Program::init(code) {
         Ok(m) => m,
         Err(e) => return e.body
     };
-    
-    match main.consume() {
-        Ok(_) => println!("{:#?}", main.worker),
-        Err(e) => return e.body
-    }
     
     String::from("pass")
 }

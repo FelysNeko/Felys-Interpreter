@@ -6,10 +6,9 @@ use crate::shared::token::{ST, TT, KT};
 
 
 impl Program {
-    pub fn load(c: String) -> Result<Self, Error> {
+    pub fn init(c: String) -> Result<Self, Error> {
         Ok(Self{
-            tokens: tokenize(c)?,
-            worker: None
+            tokens: tokenize(c)?
         })
     }
 }
