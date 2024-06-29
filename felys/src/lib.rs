@@ -11,7 +11,6 @@ pub fn exec(code: String) -> String {
         Err(e) => return e.body
     };
     
-    
     match main.consume() {
         Ok(_) => println!("{:#?}", main.worker),
         Err(e) => return e.body
