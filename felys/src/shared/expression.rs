@@ -3,6 +3,7 @@ use crate::shared::token::{TT, BT, UT, VT};
 use crate::shared::error::Error;
 
 
+#[derive(Debug)]
 pub struct BinaryNode {
     pub optr: BT,
     pub left: Box<Node>,
@@ -10,12 +11,14 @@ pub struct BinaryNode {
 }
 
 
+#[derive(Debug)]
 pub struct UnaryNode {
     pub optr: UT,
     pub next: Box<Node>,
 }
 
 
+#[derive(Debug)]
 pub struct IdentifierNode {
     pub ident: String,
     pub call: bool,
@@ -23,18 +26,21 @@ pub struct IdentifierNode {
 }
 
 
+#[derive(Debug)]
 pub struct FunctionNode {
     pub param: Vec<String>,
     pub body: Block
 }
 
 
+#[derive(Debug)]
 pub struct LiteralNode {
     pub kind: VT,
     pub value: String
 }
 
 
+#[derive(Debug)]
 pub enum Node {
     Bin(BinaryNode),
     Una(UnaryNode),

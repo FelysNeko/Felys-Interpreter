@@ -1,7 +1,9 @@
+use crate::frontend::program::Eat;
 use crate::shared::token::{BT, ST, TT};
 use crate::shared::error::Error;
 use crate::shared::expression::{BinaryNode, FunctionNode, IdentifierNode, LiteralNode, Node, UnaryNode};
 use crate::shared::program::Program;
+use crate::shared::statement::{Block, SimpleStmt};
 
 
 impl Program {
@@ -11,7 +13,6 @@ impl Program {
 
     fn parse_assignement(&mut self) -> Result<Node, Error> {
         let mut left = self.parse_logical()?;
-
         while let Some(token) = self.tokens.pop() {
             if let TT::Bin(
                 BT::Asn | BT::Ade | BT::Sue | BT::Mue | BT::Die | BT::Moe
@@ -23,13 +24,11 @@ impl Program {
                 break;
             }
         }
-
         Ok(left)
     }
 
     fn parse_logical(&mut self) -> Result<Node, Error> {
         let mut left = self.parse_compare()?;
-
         while let Some(token) = self.tokens.pop() {
             if let TT::Bin(
                 BT::And | BT::Xor | BT::Or
@@ -41,13 +40,11 @@ impl Program {
                 break;
             }
         }
-
         Ok(left)
     }
 
     fn parse_compare(&mut self) -> Result<Node, Error> {
         let mut left = self.parse_additive()?;
-
         while let Some(token) = self.tokens.pop() {
             if let TT::Bin(
                 BT::Gt | BT::Ge | BT::Lt | BT::Le | BT::Eq | BT::Ne
@@ -59,13 +56,11 @@ impl Program {
                 break;
             }
         }
-
         Ok(left)
     }
 
     fn parse_additive(&mut self) -> Result<Node, Error> {
         let mut left = self.parse_multiply()?;
-
         while let Some(token) = self.tokens.pop() {
             if let TT::Bin(
                 BT::Add | BT::Sub
@@ -77,13 +72,11 @@ impl Program {
                 break;
             }
         }
-
         Ok(left)
     }
 
     fn parse_multiply(&mut self) -> Result<Node, Error> {
         let mut left = self.parse_unary()?;
-
         while let Some(token) = self.tokens.pop() {
             if let TT::Bin(
                 BT::Mod | BT::Mul | BT::Div
@@ -95,7 +88,6 @@ impl Program {
                 break;
             }
         }
-        
         Ok(left)
     }
 
@@ -109,7 +101,6 @@ impl Program {
                 self.tokens.push(token);
             }
         }
-        
         self.parse_primary()
     }
 
@@ -152,12 +143,11 @@ impl Program {
         } else {
             Vec::new()
         };
-        
         IdentifierNode::build(ident, call, param)
     }
     
     fn parse_parameter(&mut self) -> Result<Vec<Node>, Error> {
-        self.expect(ST::LParen)?;
+        self.eat(ST::LParen)?;
 
         let mut param = Vec::new();
         while let Some(token) = self.tokens.last() {
@@ -165,6 +155,7 @@ impl Program {
                 let node = self.parse_expression()?;
                 param.push(node);
             } else {
+                self.eat(ST::RParen)?;
                 break;
             }
             
@@ -178,12 +169,11 @@ impl Program {
                 return Error::expect_comma_rparen();
             }
         }
-        
         Ok(param)
     }
 
     fn parse_function(&mut self) -> Result<Node, Error> {
-        self.expect(ST::Pipe)?;
+        self.eat(ST::Pipe)?;
         
         let mut param = Vec::new();
         while let Some(token) = self.tokens.pop() {
@@ -208,19 +198,20 @@ impl Program {
             if token.kind == TT::Sym(ST::LBrace) {
                 self.parse_block()?
             } else {
-                self.parse_statement()?.into()
+                let expr = self.parse_expression()?;
+                let stmt = SimpleStmt::build(expr)?;
+                Block::new(vec![stmt])
             }
         } else {
             return Error::no_more_token();
         };
-        
         FunctionNode::build(param, block)
     }
 
     fn parse_parentheses(&mut self) -> Result<Node, Error> {
-        self.expect(ST::LParen)?;
+        self.eat(ST::LParen)?;
         let inner = self.parse_expression()?;
-        self.expect(ST::RParen)?;
+        self.eat(ST::RParen)?;
         Ok(inner)
     }
 }

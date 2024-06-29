@@ -5,27 +5,27 @@ use crate::shared::error::Error;
 
 
 pub fn tokenize(c: String) -> Result<Vec<Token>, Error> {
-    let mut lexer = Lexer {
+    let mut cursor = Cursor {
         chars: c.chars().peekable(),
         buf: Vec::new()
     };
 
-    while let Some(tk) = lexer.scan_next()? {
-        lexer.buf.push(tk)
+    while let Some(tk) = cursor.scan_next()? {
+        cursor.buf.push(tk)
     }
 
-    lexer.buf.reverse();
-    Ok(lexer.buf)
+    cursor.buf.reverse();
+    Ok(cursor.buf)
 }
 
 
-struct Lexer<'a> {
+struct Cursor<'a> {
     chars: Peekable<Chars<'a>>,
     buf: Vec<Token>
 }
 
 
-impl Lexer<'_> {
+impl Cursor<'_> {
     fn scan_next(&mut self) -> Result<Option<Token>, Error> {
         while let Some(ch) = self.chars.peek() {
             if *ch == ' ' || *ch == '\n' || *ch == '\r' {

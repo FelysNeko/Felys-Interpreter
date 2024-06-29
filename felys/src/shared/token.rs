@@ -1,4 +1,4 @@
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum KeywordType {
     While,
     If,
@@ -9,7 +9,7 @@ pub enum KeywordType {
 pub type KT = KeywordType;
 
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum ValueType {
     Boolean,
     String,
@@ -19,7 +19,7 @@ pub enum ValueType {
 pub type VT = ValueType;
 
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum BinoptrType {
     Add,
     Sub,
@@ -45,7 +45,7 @@ pub enum BinoptrType {
 }
 pub type ST = SymbolType;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum UnaoptrType {
     Not,
     Pos,
@@ -54,7 +54,7 @@ pub enum UnaoptrType {
 pub type BT = BinoptrType;
 
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum SymbolType {
     LBrace,
     RBrace,
@@ -67,7 +67,7 @@ pub enum SymbolType {
 pub type UT = UnaoptrType;
 
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum TokenType {
     Val(ValueType),
     Key(KeywordType),
@@ -79,6 +79,7 @@ pub enum TokenType {
 pub type TT = TokenType;
 
 
+#[derive(PartialEq, Debug)]
 pub struct Token {
     pub kind: TokenType,
     pub value: String,
